@@ -1,4 +1,4 @@
 /node_modules
-/public/photos
+/src/public/photos
 package-lock.json
 .env

@@ -195,8 +195,7 @@ const nextButton = {
 const previewMenu = {
     reply_markup: {
         inline_keyboard: [
-            [{text: 'Далее ➡️', callback_data: 'next'}],
-            [{text: 'Отправить анонс на модерацию', callback_data: 'send'}],
+            [{text: 'Далее ➡️', callback_data: 'next'}, {text: 'Отправить 📤', callback_data: 'send'}],
         ]
     }
 }
@@ -284,6 +283,7 @@ let photo_flag = false;
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const text = msg.text;
+    const success_mes = `Информация успешно записана 🎉`
     //bot.sendMessage(chatId, `result - ${tableActions[1].patterns.test(text)}`);
     if(text === '/start'){
         bot.sendMessage(chatId, 'Загрузите фотограию');
@@ -311,17 +311,20 @@ bot.on('message', async msg => {
         else{
             anonsInfo.link = `https://t.me/+nVgj6aipar04MjRi`
             anonsInfo.chatTitle = `🏄‍♂️ ФАНерный чат 🏂`;
-        }        
+        }
+        bot.sendMessage(chatId, success_mes);        
     }
     if(get_date_flag){
         get_date_flag = false;
         actionMenu.date = ' ✅';
         anonsInfo.date = text;
+        bot.sendMessage(chatId, success_mes);
     }
     if(get_time_flag){
         get_time_flag = false;
         actionMenu.time = ' ✅';
         anonsInfo.time = text;
+        bot.sendMessage(chatId, success_mes);
     }
     if(get_location_flag){
         get_location_flag = false;
@@ -330,33 +333,37 @@ bot.on('message', async msg => {
         anonsInfo.locCoordinates = await getLocCoordinates(text);
         bot.sendMessage(chatId, anonsInfo.locLink);
         anonsInfo.location = text;
+        bot.sendMessage(chatId, success_mes);
     }
     if(get_price_flag){
         get_price_flag = false;
         actionMenu.price = ' ✅';
         anonsInfo.price = text;
+        bot.sendMessage(chatId, success_mes);
     }
 
     if(get_participants_flag){
         get_participants_flag = false;
         actionMenu.participants = ' ✅';
         anonsInfo.participants = text;
+        bot.sendMessage(chatId, success_mes);
     }
 
     if(details_flag){
         details_flag = false;
         actionMenu.details = ' ✅';
         anonsInfo.details = text;
+        bot.sendMessage(chatId, success_mes);
     }
 });
 
 let Img;
 
 bot.on('photo', async msg => {
+    const chatId = msg.chat.id;
+    const success_mes = `Фотография успешно загружена 🎉`;
     if(photo_flag){
         photo_flag = false;
-        const chatId = msg.chat.id;
-	    const caption = msg.caption;
         const koef = 1;
         photoId = msg.photo[msg.photo.length-1].file_id;
         const image = await bot.getFile(photoId);
@@ -382,6 +389,7 @@ bot.on('photo', async msg => {
         const imgBuffer = canvas.toBuffer('image/jpeg');
         anonsInfo.photo = `src/public/${image.file_path}`;
 		fs.writeFileSync(anonsInfo.photo, imgBuffer);
+        bot.sendMessage(chatId, success_mes);
     }
 })
 
@@ -478,16 +486,17 @@ bot.on('callback_query', async msg => {
             break;
         case 'getPrevie':
             //console.log(anonsInfo.photo);
-            if(anonsInfo.photo !== ""  
+            /*if(anonsInfo.photo !== ""  
             && anonsInfo.title !== ""
             && anonsInfo.date !== ""
             && anonsInfo.time !== ""
-            && anonsInfo.location !== ""){
+            && anonsInfo.location !== ""){*/
                 await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo.photo), {caption: getText(), parse_mode: 'HTML'});
-            }
+                await bot.sendMessage(chatId, "Отправьте анонс на модерацию или продолжите редактирование", previewMenu);
+            /*}
             else{
                 bot.sendMessage(chatId, `Заполнены не все обязательные поля!`);
-            }
+            }*/
             break;
 
         default:
