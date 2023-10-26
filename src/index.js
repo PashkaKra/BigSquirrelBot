@@ -233,25 +233,27 @@ const ball_categories = {
         ]
     }
 }
-
-const anonsInfo = {
-    title: "",
-    //action:false,
-    user: "",
-    username: "",
-    date: "",
-    time: "",
-    location: "",
-    locCoordinates: "",
-    price: "Бесплатно",
-    participants: false,
-    link: "",
-    chatTitle: "",
-    categoryTeg: "",
-    level: '',
-    details: '',
-    photo: '',
+const anonsInfoInit = () => {
+    return({
+        title: "",
+        user: "",
+        username: "",
+        date: "",
+        time: "",
+        location: "",
+        locCoordinates: "",
+        price: "Бесплатно",
+        participants: false,
+        link: "",
+        chatTitle: "",
+        categoryTeg: "",
+        level: '',
+        details: '',
+        photo: '',
+    });
 }
+
+let anonsInfo = anonsInfoInit();
 const getText = () => {
 let announce = `<strong>${anonsInfo.date} - ${anonsInfo.title}</strong>
 🧑‍💼Организатор: @${anonsInfo.user} (${anonsInfo.username})
@@ -292,6 +294,19 @@ bot.on('message', async msg => {
     //bot.on('/get_action', async msg => {
     //    messId = msg.message_id;
     //    console.log(`messageId is ${messId}`)
+        anonsInfo = anonsInfoInit();
+        actionMenu.type = "";
+        actionMenu.title = "";
+        actionMenu.date = "";
+        actionMenu.time = "";
+        actionMenu.location = "";
+        actionMenu.price = "";
+        actionMenu.participants = "";
+        actionMenu.lev.beginners = "";
+        actionMenu.lev.fan = "";
+        actionMenu.lev.pro = "";
+        actionMenu.details = "";
+        actionMenu.photo = "";
         bot.sendMessage(chatId, 'Заполните данные для анонса', getActionMenu());
         console.log(`message ${text}`);
     //})
@@ -429,9 +444,8 @@ bot.on('callback_query', async msg => {
         case 'lapta': changeActionState(chatId, msgId, 9, "Лапта"); break;*/    
         case 'next':
             bot.deleteMessage(chatId, msg.message.message_id);
-            actionMenu.type = anonsInfo.action ? ' ✅' : '';
-            actionMenu.title = anonsInfo.title ? ' ✅' : '';
-            actionMenu.photo = anonsInfo.photo ? ' ✅' : '';
+            //actionMenu.title = anonsInfo.title ? ' ✅' : '';
+            //actionMenu.photo = anonsInfo.photo ? ' ✅' : '';
             bot.sendMessage(chatId, `Заполните данные для анонса.${br}Позиции отмеченные символом "*" - обязательны для заполнения!`, getActionMenu());
             break;
         case 'titleOfAction': 
