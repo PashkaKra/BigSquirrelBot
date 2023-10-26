@@ -500,17 +500,17 @@ bot.on('callback_query', async msg => {
             break;
         case 'getPrevie':
             //console.log(anonsInfo.photo);
-            /*if(anonsInfo.photo !== ""  
-            && anonsInfo.title !== ""
+            if(anonsInfo.photo !== ""  
+           /*&& anonsInfo.title !== ""
             && anonsInfo.date !== ""
             && anonsInfo.time !== ""
-            && anonsInfo.location !== ""){*/
+            && anonsInfo.location !== ""*/){
                 await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo.photo), {caption: getText(), parse_mode: 'HTML'});
                 await bot.sendMessage(chatId, "Отправьте анонс на модерацию или продолжите редактирование", previewMenu);
-            /*}
+            }
             else{
                 bot.sendMessage(chatId, `Заполнены не все обязательные поля!`);
-            }*/
+            }
             break;
 
         default:
