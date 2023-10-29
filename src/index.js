@@ -50,21 +50,23 @@ let Rackets = [
     {text: "Пиклбол", teg: "#Теннис", data: false}, {text: "Лапта", teg: "#Лапта", data: false}
 ];
 
-const actionMenu = {
-    type: "",
-    title: "",
-    date: "",
-    time: "",
-    location: "",
-    price: "",
-    participants: "",
-    lev: {
-        beginners: "",
-        fan: "",
-        pro: ""
-    },
-    details: "",
-    photo: "",
+const actionMenuInit = () => {
+    return({
+        type: "",
+        title: "",
+        date: "",
+        time: "",
+        location: "",
+        price: "",
+        participants: "",
+        lev: {
+            beginners: "",
+            fan: "",
+            pro: ""
+        },
+        details: "",
+        photo: "",
+    });
 }
 
 const getActionMenu = () => {return({
@@ -86,6 +88,8 @@ const getActionMenu = () => {return({
         ]
     }
 })}
+
+let actionMenu = actionMenuInit();
 /*const changeActionState = (chatId, msgId, i, title) => {
     bot.deleteMessage(chatId, msgId);
     if(!Rackets[i].data){
@@ -239,11 +243,12 @@ const anonsInfoInit = () => {
         user: "",
         username: "",
         date: "",
+        day: "",
         time: "",
         location: "",
         locCoordinates: "",
         price: "Бесплатно",
-        participants: false,
+        participants: "Без ограничеий",
         link: "",
         chatTitle: "",
         categoryTeg: "",
@@ -255,7 +260,7 @@ const anonsInfoInit = () => {
 
 let anonsInfo = anonsInfoInit();
 const getText = () => {
-let announce = `<strong>${anonsInfo.date} - ${anonsInfo.title}</strong>
+let announce = `<strong>${anonsInfo.date} (${anonsInfo.day}) - ${anonsInfo.title}</strong>
 🧑‍💼Организатор: @${anonsInfo.user} (${anonsInfo.username})
 
 ⏰ ${anonsInfo.time}
@@ -282,6 +287,15 @@ let get_participants_flag = false;
 let details_flag = false;
 let photo_flag = false;
 
+const day_arr = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
+
+const countDigits = n => {
+    for(var i = 0; n >= 1; i++) {
+       n /= 10;
+    }
+    return i;
+ }
+
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const text = msg.text;
@@ -295,18 +309,7 @@ bot.on('message', async msg => {
     //    messId = msg.message_id;
     //    console.log(`messageId is ${messId}`)
         anonsInfo = anonsInfoInit();
-        actionMenu.type = "";
-        actionMenu.title = "";
-        actionMenu.date = "";
-        actionMenu.time = "";
-        actionMenu.location = "";
-        actionMenu.price = "";
-        actionMenu.participants = "";
-        actionMenu.lev.beginners = "";
-        actionMenu.lev.fan = "";
-        actionMenu.lev.pro = "";
-        actionMenu.details = "";
-        actionMenu.photo = "";
+        actionMenu = actionMenuInit();
         bot.sendMessage(chatId, 'Заполните данные для анонса', getActionMenu());
         console.log(`message ${text}`);
     //})
@@ -332,7 +335,19 @@ bot.on('message', async msg => {
     if(get_date_flag){
         get_date_flag = false;
         actionMenu.date = ' ✅';
-        anonsInfo.date = text;
+        let day;
+        if(/(\d{2}.\d{2})/.test(text)){
+            anonsInfo.date = text;
+            day = new Date(chrono.ru.parseDate(text + `.${new Date().getFullYear()}`)).getDay();
+        }
+        else{
+            const date = new Date(chrono.ru.parseDate(text));
+            day = date.getDay();
+            const date_zerro = countDigits(date.getDate()) === 2? "" : 0;
+            const month_zerro = countDigits(date.getMonth() + 1) === 2? "" : 0;
+            anonsInfo.date = `${date_zerro}${date.getDate()}.${month_zerro}${date.getMonth() + 1}`;
+        }
+        anonsInfo.day = day_arr[day];
         bot.sendMessage(chatId, success_mes);
     }
     if(get_time_flag){
@@ -379,6 +394,7 @@ bot.on('photo', async msg => {
     const success_mes = `Фотография успешно загружена 🎉`;
     if(photo_flag){
         photo_flag = false;
+        actionMenu.photo = ' ✅';
         const koef = 1;
         photoId = msg.photo[msg.photo.length-1].file_id;
         const image = await bot.getFile(photoId);
@@ -425,8 +441,8 @@ bot.on('callback_query', async msg => {
     //console.log(chrono.parseDate('An appointment on Sep 12-13'));
     console.log(chrono.ru.parseDate('25.10.23')); 
     console.log(chrono.ru.parseDate('c 25.10 по 23.11')); 
-    console.log(msg);
-    console.log(data);
+    //console.log(msg);
+    //console.log(data);
     switch(data){
         /*case 'typeOfAction':
             bot.deleteMessage(chatId, msgId);
@@ -512,6 +528,9 @@ bot.on('callback_query', async msg => {
                 bot.sendMessage(chatId, `Заполнены не все обязательные поля!`);
             }
             break;
+        /*case 'send':
+                await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo.photo), {caption: getText(), parse_mode: 'HTML', reply_to_message_id: 12773});
+            break;*/
 
         default:
             console.log("test");
