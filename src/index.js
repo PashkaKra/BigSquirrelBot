@@ -528,9 +528,9 @@ bot.on('callback_query', async msg => {
                 bot.sendMessage(chatId, `Заполнены не все обязательные поля!`);
             }
             break;
-        /*case 'send':
-                await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo.photo), {caption: getText(), parse_mode: 'HTML', reply_to_message_id: 12773});
-            break;*/
+        case 'send':
+                await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo.photo), {caption: getText(), parse_mode: 'HTML', message_thread_id: 12773});
+            break;
 
         default:
             console.log("test");
