@@ -14,7 +14,7 @@ const bot = new TelegramApi(TOKEN, {polling: true});
 //const Img = 'https://www.yandex.ru/images/search?pos=0&from=tabbar&img_url=https%3A%2F%2Finfostart.ru%2Fupload%2Fiblock%2Ff0a%2Ff0a7a217efa125f37974167509cbc4cc.jpg&text=node-telegram-bot-api+%D0%BA%D0%B0%D0%BA+%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D1%82%D1%8C+%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8E+%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D1%83+%D0%BF%D0%BE+url+%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B5&rpt=simage&lr=10738';
 
 bot.setMyCommands([
-    {command: '/start', description: 'start'},
+    //{command: '/start', description: 'start'},
     {command: '/get_action', description: 'Предложить анонс'}
 ]);
 
@@ -460,6 +460,14 @@ bot.on('callback_query', async msg => {
         case 'lapta': changeActionState(chatId, msgId, 9, "Лапта"); break;*/    
         case 'next':
             bot.deleteMessage(chatId, msg.message.message_id);
+            get_title_flag = false;
+            get_date_flag = false;
+            get_time_flag = false;
+            get_location_flag = false;
+            get_price_flag = false;
+            get_participants_flag = false;
+            details_flag = false;
+            photo_flag = false;
             //actionMenu.title = anonsInfo.title ? ' ✅' : '';
             //actionMenu.photo = anonsInfo.photo ? ' ✅' : '';
             bot.sendMessage(chatId, `Заполните данные для анонса.${br}Позиции отмеченные символом "*" - обязательны для заполнения!`, getActionMenu());
