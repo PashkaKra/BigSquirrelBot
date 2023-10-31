@@ -301,9 +301,9 @@ bot.on('message', async msg => {
     const text = msg.text;
     const success_mes = `Информация успешно записана 🎉`
     //bot.sendMessage(chatId, `result - ${tableActions[1].patterns.test(text)}`);
-    if(text === '/start'){
+    /*if(text === '/start'){
         bot.sendMessage(chatId, 'Загрузите фотограию');
-    }
+    }*/
     if(text === '/get_action'){
     //bot.on('/get_action', async msg => {
     //    messId = msg.message_id;
