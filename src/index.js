@@ -37,6 +37,7 @@ const getAction = (title) => {
         {action: "Футбол", teg: "#футбол", link: "https://t.me/+jrN8B0CLicthNzM6", chat: "🏐Мяч", patterns: /футбол/i},
         {action: "Баскетбол", teg: "#баскетбол", link: "https://t.me/+jrN8B0CLicthNzM6", chat: "🏐Мяч", patterns: /(баскет|стритбол)/i},
         {action: "Гандбол", teg: "#баскетбол #футбол", link: "https://t.me/+jrN8B0CLicthNzM6", chat: "🏐Мяч", patterns: /гандбол/i},
+        {action: "Скалолазание", teg: "#скалолазание", link: "https://t.me/joinchat/UDf0F4Pr9Yyuuawk", chat: "Скалолазы🧗", patterns: /(скалолаз|боулдеринг|трудность)/i},
     ];
 
     return(tableActions.find((item) => item.patterns.test(title)));
@@ -255,6 +256,7 @@ const anonsInfoInit = () => {
         level: '',
         details: '',
         photo: '',
+        image: '',
     });
 }
 
@@ -296,6 +298,23 @@ const countDigits = n => {
     return i;
  }
 
+ const getDate = text => {
+    let day;
+    if(/(\d{2}.\d{2})/.test(text) && !(/(\d{2}\.\d{2}\.\d{2,4})/.test(text))){
+        anonsInfo.date = text;
+        day = new Date(chrono.ru.parseDate(text + `.${new Date().getFullYear()}`)).getDay();
+    }
+    else{
+        const date = new Date(chrono.ru.parseDate(text));
+        day = date.getDay();
+        const date_zerro = countDigits(date.getDate()) === 2? "" : 0;
+        const month_zerro = countDigits(date.getMonth() + 1) === 2? "" : 0;
+        anonsInfo.date = `${date_zerro}${date.getDate()}.${month_zerro}${date.getMonth() + 1}`;
+        console.log(anonsInfo.date);
+    }
+    anonsInfo.day = day_arr[day];
+ }
+
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const text = msg.text;
@@ -329,25 +348,26 @@ bot.on('message', async msg => {
         else{
             anonsInfo.link = `https://t.me/+nVgj6aipar04MjRi`
             anonsInfo.chatTitle = `🏄‍♂️ ФАНерный чат 🏂`;
+            anonsInfo.categoryTeg = "";
         }
         bot.sendMessage(chatId, success_mes);        
     }
     if(get_date_flag){
         get_date_flag = false;
         actionMenu.date = ' ✅';
-        let day;
-        if(/(\d{2}.\d{2})/.test(text)){
-            anonsInfo.date = text;
-            day = new Date(chrono.ru.parseDate(text + `.${new Date().getFullYear()}`)).getDay();
+        if(/(по|до|-)/.test(text)){
+            let durDate = text.split(/(по|до|-)/);
+            console.log(durDate[0]);
+            console.log(durDate[1]);
+            getDate(durDate[0]);
+            //getDate(durDate[1]);
+            getDate(durDate[2]);
         }
         else{
-            const date = new Date(chrono.ru.parseDate(text));
-            day = date.getDay();
-            const date_zerro = countDigits(date.getDate()) === 2? "" : 0;
-            const month_zerro = countDigits(date.getMonth() + 1) === 2? "" : 0;
-            anonsInfo.date = `${date_zerro}${date.getDate()}.${month_zerro}${date.getMonth() + 1}`;
+            getDate(text);
         }
-        anonsInfo.day = day_arr[day];
+        
+        
         bot.sendMessage(chatId, success_mes);
     }
     if(get_time_flag){
@@ -389,17 +409,47 @@ bot.on('message', async msg => {
 
 let Img;
 
+const getPhoto = async () => {
+    const koef = 1;
+    const image = anonsInfo.image;
+    const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
+    const Img1 = await loadImage(FILE_PATH);
+    const Img2 = await loadImage(`src/public/logo/logo.png`);
+    const width = Img1.width;
+    const height = Img1.height;
+    const k = (height - width)+width*14/100;
+    const canvas = createCanvas(width, height+width*14/100);
+	const context = canvas.getContext('2d');
+	context.drawImage(Img1, 0, 0, width, height);
+    context.drawImage(Img2, 0, k, width, width);
+	context.fillStyle = "#e85d17";
+
+    context.font = `${width*koef/18}pt Ralev001`;
+	context.fillText(anonsInfo.title, 25, height-koef+width/10);
+
+    context.fillStyle = "white";
+    context.font = `${width/17}pt Ralev001`;
+	context.fillText(anonsInfo.date, width/1.29, height+width*0.08);
+
+    const imgBuffer = canvas.toBuffer('image/jpeg');
+    anonsInfo.photo = `src/public/${image.file_path}`;
+	fs.writeFileSync(anonsInfo.photo, imgBuffer);
+}
+
 bot.on('photo', async msg => {
     const chatId = msg.chat.id;
     const success_mes = `Фотография успешно загружена 🎉`;
     if(photo_flag){
         photo_flag = false;
         actionMenu.photo = ' ✅';
-        const koef = 1;
+        //const koef = 1;
         photoId = msg.photo[msg.photo.length-1].file_id;
-        const image = await bot.getFile(photoId);
-		const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
-		const Img1 = await loadImage(FILE_PATH);
+        anonsInfo.image = await bot.getFile(photoId);
+		//const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
+        //anonsInfo.Img1 = await loadImage(FILE_PATH);
+        anonsInfo.photo = 1;
+        bot.sendMessage(chatId, success_mes);
+		/*const Img1 = await loadImage(FILE_PATH);
 		const Img2 = await loadImage(`src/public/logo/logo.png`);
         const width = Img1.width;
         const height = Img1.height;
@@ -420,7 +470,7 @@ bot.on('photo', async msg => {
         const imgBuffer = canvas.toBuffer('image/jpeg');
         anonsInfo.photo = `src/public/${image.file_path}`;
 		fs.writeFileSync(anonsInfo.photo, imgBuffer);
-        bot.sendMessage(chatId, success_mes);
+        bot.sendMessage(chatId, success_mes);*/
     }
 })
 
@@ -529,6 +579,7 @@ bot.on('callback_query', async msg => {
             && anonsInfo.date !== ""
             && anonsInfo.time !== ""
             && anonsInfo.location !== ""*/){
+                await getPhoto();
                 await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo.photo), {caption: getText(), parse_mode: 'HTML'});
                 await bot.sendMessage(chatId, "Отправьте анонс на модерацию или продолжите редактирование", previewMenu);
             }
