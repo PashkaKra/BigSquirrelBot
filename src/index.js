@@ -207,6 +207,12 @@ const previewMenu = {
     }
 }
 
+const inWork = {
+    inline_keyboard: [
+        [{text: 'Принять ✅', callback_data: 'accept'}, {text: 'Отклонить ❌', callback_data: 'reject'}],
+    ]
+}
+
 const startMenu ={
     reply_markup:{
         keyboard: [
@@ -598,7 +604,7 @@ bot.on('callback_query', async msg => {
             }
             break;
         case 'send':
-                await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo.photo), {caption: getText(), parse_mode: 'HTML', message_thread_id: 12773});
+                await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo.photo), {caption: getText(), reply_markup: inWork, parse_mode: 'HTML', message_thread_id: 12773});
             break;
 
         default:
