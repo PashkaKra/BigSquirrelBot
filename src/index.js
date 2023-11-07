@@ -500,7 +500,9 @@ bot.on('callback_query', async msg => {
     const msgId = msg.message.message_id;
     const data = msg.data;
     const photoText = `🖼 Загрузите фотографию для абложки анонса.
-Формат фото: горизонтальное (При необходимости обрежьте поля)`
+Формат фото: горизонтальное (При необходимости обрежьте поля)`;
+    const sendMess = `📭 Анонс отправлен на модерацию.
+❗️В случае возникновения вопросов, обращайтесь к @Katran1.`;
     
     if(anonsInfo.user === "") {anonsInfo.user = msg.from.username;}
     if(anonsInfo.username === "") {anonsInfo.username = msg.from.first_name;}
@@ -591,10 +593,10 @@ bot.on('callback_query', async msg => {
         case 'getPrevie':
             //console.log(anonsInfo.photo);
             if(anonsInfo.photo !== ""  
-           /*&& anonsInfo.title !== ""
+            && anonsInfo.title !== ""
             && anonsInfo.date !== ""
             && anonsInfo.time !== ""
-            && anonsInfo.location !== ""*/){
+            && anonsInfo.location !== ""){
                 await getPhoto();
                 await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo.photo), {caption: getText(), parse_mode: 'HTML'});
                 await bot.sendMessage(chatId, "Отправьте анонс на модерацию или продолжите редактирование", previewMenu);
@@ -605,6 +607,7 @@ bot.on('callback_query', async msg => {
             break;
         case 'send':
                 await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo.photo), {caption: getText(), reply_markup: inWork, parse_mode: 'HTML', message_thread_id: 12773});
+                bot.sendMessage(chatId, sendMess);
             break;
 
         default:
