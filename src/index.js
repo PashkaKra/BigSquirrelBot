@@ -60,18 +60,18 @@ const actionMenuInit = () => {
         location: "",
         price: "",
         participants: "",
-        lev: {
+        /*lev: {
             beginners: "",
             fan: "",
             pro: ""
-        },
+        },*/
         details: "",
         photo: "",
     });
 }
 
 const getActionMenu = () => {return({
-    reply_markup: {
+    //reply_markup: {
         inline_keyboard: [
             //[{text: `Тип мероприятия${actionMenu.type}`, callback_data: 'typeOfAction'}],
             [{text: `*📖 Заголовок мероприятия${actionMenu.title}`, callback_data: 'titleOfAction'}],
@@ -80,14 +80,14 @@ const getActionMenu = () => {return({
             [{text: `*📍 Локация${actionMenu.location}`, callback_data: 'locationOfAction'}],
             [{text: `💸 Стоимость${actionMenu.price}`, callback_data: 'priceOfAction'}],
             [{text: `👥 Количество участников${actionMenu.participants}`, callback_data: 'numberOfParticipants'}],
-            [{text: `🥉 Новички${actionMenu.lev.beginners}`, callback_data: 'beginners'},
+            /*[{text: `🥉 Новички${actionMenu.lev.beginners}`, callback_data: 'beginners'},
             {text: `🥈 Любители${actionMenu.lev.fan}`, callback_data: 'fan'},
-            {text: `🥇 Про${actionMenu.lev.pro}`, callback_data: 'pro'},],
+            {text: `🥇 Про${actionMenu.lev.pro}`, callback_data: 'pro'},],*/
             [{text: `➕ Дополнительная информация${actionMenu.details}`, callback_data: 'detailsOfAction'}],
             [{text: `*🏞 Фотообложка${actionMenu.photo}`, callback_data: 'photo'}],
             [{text: 'Показать превью', callback_data: 'getPrevie'}],
         ]
-    }
+    //}
 })}
 
 let actionMenu = actionMenuInit();
@@ -133,7 +133,8 @@ const changeLevelState = (chatId, msgId, levCat,) => {
 const br = `
 `;
 
-const setLevelState = () => {
+//---------------------------------------------------------------------//
+/*const setLevelState = () => {
     if(actionMenu.lev.beginners === ' ✅'
     && actionMenu.lev.fan === ' ✅'
     && actionMenu.lev.pro === ' ✅'){
@@ -163,7 +164,8 @@ const setLevelState = () => {
     else{
         anonsInfo.level = "";
     }
-}
+}*/
+//---------------------------------------------------------------------//
 
 const getRacketsMenu = () => {return ({
     reply_markup: {
@@ -200,7 +202,7 @@ const nextButton = {
 const previewMenu = {
     reply_markup: {
         inline_keyboard: [
-            [{text: 'Далее ➡️', callback_data: 'next'}, {text: 'Отправить 📤', callback_data: 'send'}],
+            [{text: 'Редактировать ✏️', callback_data: 'next'}, {text: 'Отправить 📤', callback_data: 'send'}],
         ]
     }
 }
@@ -249,11 +251,11 @@ const anonsInfoInit = () => {
         location: "",
         locCoordinates: "",
         price: "Бесплатно",
-        participants: "Без ограничеий",
+        participants: "Без ограничений",
         link: "",
         chatTitle: "",
         categoryTeg: "",
-        level: '',
+        //level: '',
         details: '',
         photo: '',
         image: '',
@@ -262,13 +264,14 @@ const anonsInfoInit = () => {
 
 let anonsInfo = anonsInfoInit();
 const getText = () => {
-let announce = `<strong>${anonsInfo.date} (${anonsInfo.day}) - ${anonsInfo.title}</strong>
-🧑‍💼Организатор: @${anonsInfo.user} (${anonsInfo.username})
+let announce = `<strong>${anonsInfo.date} (${anonsInfo.day}) - ${anonsInfo.title}
+
+🧑‍💼Организатор: @${anonsInfo.user} (${anonsInfo.username})</strong>
 
 ⏰ ${anonsInfo.time}
 📍 <a href="https://yandex.ru/maps/?pt=${anonsInfo.locCoordinates}&z=14&l=map">${anonsInfo.location}</a>
 💸 ${anonsInfo.price}
-👥 ${anonsInfo.participants}${anonsInfo.level}` + br + br;
+👥 ${anonsInfo.participants/*anonsInfo.level*/}` + br + br;
 
 if(anonsInfo.details !== ""){announce += '➕' + anonsInfo.details + br + br;}
 
@@ -315,6 +318,11 @@ const countDigits = n => {
     anonsInfo.day = day_arr[day];
  }
 
+ const startText = `
+ 🔖 <strong>Заполните короткий шаблон, чтобы получился красивый анонс</strong>
+ ❗️Поля, отмеченные «*» обязательны для заполнения
+     `
+
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const text = msg.text;
@@ -329,7 +337,7 @@ bot.on('message', async msg => {
     //    console.log(`messageId is ${messId}`)
         anonsInfo = anonsInfoInit();
         actionMenu = actionMenuInit();
-        bot.sendMessage(chatId, 'Заполните данные для анонса', getActionMenu());
+        bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(), parse_mode: 'HTML'});
         console.log(`message ${text}`);
     //})
          
@@ -388,14 +396,14 @@ bot.on('message', async msg => {
     if(get_price_flag){
         get_price_flag = false;
         actionMenu.price = ' ✅';
-        anonsInfo.price = text;
+        text !== '0' ? anonsInfo.price = text : anonsInfo.price = "Бесплатно";
         bot.sendMessage(chatId, success_mes);
     }
 
     if(get_participants_flag){
         get_participants_flag = false;
         actionMenu.participants = ' ✅';
-        anonsInfo.participants = text;
+        text !== '0' ? anonsInfo.participants = text : anonsInfo.participants = "Без ограничений";
         bot.sendMessage(chatId, success_mes);
     }
 
@@ -485,6 +493,8 @@ bot.on('callback_query', async msg => {
     const chatId = msg.message.chat.id;
     const msgId = msg.message.message_id;
     const data = msg.data;
+    const photoText = `🖼 Загрузите фотографию для абложки анонса.
+Формат фото: горизонтальное (При необходимости обрежьте поля)`
     
     if(anonsInfo.user === "") {anonsInfo.user = msg.from.username;}
     if(anonsInfo.username === "") {anonsInfo.username = msg.from.first_name;}
@@ -520,7 +530,7 @@ bot.on('callback_query', async msg => {
             photo_flag = false;
             //actionMenu.title = anonsInfo.title ? ' ✅' : '';
             //actionMenu.photo = anonsInfo.photo ? ' ✅' : '';
-            bot.sendMessage(chatId, `Заполните данные для анонса.${br}Позиции отмеченные символом "*" - обязательны для заполнения!`, getActionMenu());
+            bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(), parse_mode: 'HTML'});
             break;
         case 'titleOfAction': 
             bot.deleteMessage(chatId, msgId);
@@ -553,7 +563,7 @@ bot.on('callback_query', async msg => {
             bot.sendMessage(chatId, 'Укажите количество участников', nextButton);
             get_participants_flag = true;
             break;
-        case 'beginners': 
+        /*case 'beginners': 
             changeLevelState(chatId, msgId, 'beginners');
             break;
         case 'fan': 
@@ -561,7 +571,7 @@ bot.on('callback_query', async msg => {
             break;
         case 'pro': 
             changeLevelState(chatId, msgId, 'pro');
-            break;
+            break;*/
         case 'detailsOfAction':
             bot.deleteMessage(chatId, msgId);
             bot.sendMessage(chatId, 'Укажите дополнительную информацию к анонсу', nextButton);
@@ -570,7 +580,7 @@ bot.on('callback_query', async msg => {
         case 'photo':
             photo_flag = true; 
             bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, 'Загрузите фотографию для абложки анонса', nextButton);
+            bot.sendMessage(chatId, photoText, nextButton);
             break;
         case 'getPrevie':
             //console.log(anonsInfo.photo);
