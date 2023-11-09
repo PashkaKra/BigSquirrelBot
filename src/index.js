@@ -70,27 +70,27 @@ const actionMenuInit = () => {
     });
 }
 
-const getActionMenu = () => {return({
+const getActionMenu = (chatId) => {return({
     //reply_markup: {
         inline_keyboard: [
             //[{text: `Тип мероприятия${actionMenu.type}`, callback_data: 'typeOfAction'}],
-            [{text: `*📖 Заголовок мероприятия${actionMenu.title}`, callback_data: 'titleOfAction'}],
-            [{text: `*📆 Дата${actionMenu.date}`, callback_data: 'dateOfAction'}],
-            [{text: `*⏰ Время${actionMenu.time}`, callback_data: 'timeOfAction'}],
-            [{text: `*📍 Локация${actionMenu.location}`, callback_data: 'locationOfAction'}],
-            [{text: `💸 Стоимость${actionMenu.price}`, callback_data: 'priceOfAction'}],
-            [{text: `👥 Количество участников${actionMenu.participants}`, callback_data: 'numberOfParticipants'}],
+            [{text: `*📖 Заголовок мероприятия${actionMenu[`${chatId}`].title}`, callback_data: 'titleOfAction'}],
+            [{text: `*📆 Дата${actionMenu[`${chatId}`].date}`, callback_data: 'dateOfAction'}],
+            [{text: `*⏰ Время${actionMenu[`${chatId}`].time}`, callback_data: 'timeOfAction'}],
+            [{text: `*📍 Локация${actionMenu[`${chatId}`].location}`, callback_data: 'locationOfAction'}],
+            [{text: `💸 Стоимость${actionMenu[`${chatId}`].price}`, callback_data: 'priceOfAction'}],
+            [{text: `👥 Количество участников${actionMenu[`${chatId}`].participants}`, callback_data: 'numberOfParticipants'}],
             /*[{text: `🥉 Новички${actionMenu.lev.beginners}`, callback_data: 'beginners'},
             {text: `🥈 Любители${actionMenu.lev.fan}`, callback_data: 'fan'},
             {text: `🥇 Про${actionMenu.lev.pro}`, callback_data: 'pro'},],*/
-            [{text: `➕ Дополнительная информация${actionMenu.details}`, callback_data: 'detailsOfAction'}],
-            [{text: `*🏞 Фотообложка${actionMenu.photo}`, callback_data: 'photo'}],
+            [{text: `➕ Дополнительная информация${actionMenu[`${chatId}`].details}`, callback_data: 'detailsOfAction'}],
+            [{text: `*🏞 Фотообложка${actionMenu[`${chatId}`].photo}`, callback_data: 'photo'}],
             [{text: 'Показать превью', callback_data: 'getPrevie'}],
         ]
     //}
 })}
 
-let actionMenu = actionMenuInit();
+let actionMenu = new Array();
 /*const changeActionState = (chatId, msgId, i, title) => {
     bot.deleteMessage(chatId, msgId);
     if(!Rackets[i].data){
@@ -118,7 +118,11 @@ let actionMenu = actionMenuInit();
     }
 }*/
 
-const changeLevelState = (chatId, msgId, levCat,) => {
+const br = `
+`;
+
+//---------------------------------------------------------------------//
+/*const changeLevelState = (chatId, msgId, levCat,) => {
     if(actionMenu.lev[levCat] === ""){
         actionMenu.lev[levCat] = ' ✅';
     }
@@ -130,11 +134,7 @@ const changeLevelState = (chatId, msgId, levCat,) => {
     setLevelState();
 }
 
-const br = `
-`;
-
-//---------------------------------------------------------------------//
-/*const setLevelState = () => {
+const setLevelState = () => {
     if(actionMenu.lev.beginners === ' ✅'
     && actionMenu.lev.fan === ' ✅'
     && actionMenu.lev.pro === ' ✅'){
@@ -268,23 +268,24 @@ const anonsInfoInit = () => {
     });
 }
 
-let anonsInfo = anonsInfoInit();
-const getText = () => {
-let announce = `<strong>${anonsInfo.date} (${anonsInfo.day}) - ${anonsInfo.title}
+//let anonsInfo = anonsInfoInit();
+let anonsInfo = new Array();
+const getText = (chatId) => {
+let announce = `<strong>${anonsInfo[`${chatId}`].date} (${anonsInfo[`${chatId}`].day}) - ${anonsInfo[`${chatId}`].title}
 
-🧑‍💼Организатор: @${anonsInfo.user} (${anonsInfo.username})</strong>
+🧑‍💼Организатор: @${anonsInfo[`${chatId}`].user} (${anonsInfo[`${chatId}`].username})</strong>
 
-⏰ ${anonsInfo.time}
-📍 <a href="https://yandex.ru/maps/?pt=${anonsInfo.locCoordinates}&z=14&l=map">${anonsInfo.location}</a>
-💸 ${anonsInfo.price}
-👥 ${anonsInfo.participants/*anonsInfo.level*/}` + br + br;
+⏰ ${anonsInfo[`${chatId}`].time}
+📍 <a href="https://yandex.ru/maps/?pt=${anonsInfo[`${chatId}`].locCoordinates}&z=14&l=map">${anonsInfo[`${chatId}`].location}</a>
+💸 ${anonsInfo[`${chatId}`].price}
+👥 ${anonsInfo[`${chatId}`].participants/*anonsInfo.level*/}` + br + br;
 
-if(anonsInfo.details !== ""){announce += '➕' + anonsInfo.details + br + br;}
+if(anonsInfo[`${chatId}`].details !== ""){announce += '➕' + anonsInfo[`${chatId}`].details + br + br;}
 
-announce += `📝Чат: <a href="${anonsInfo.link}">${anonsInfo.chatTitle}</a>
+announce += `📝Чат: <a href="${anonsInfo[`${chatId}`].link}">${anonsInfo[`${chatId}`].chatTitle}</a>
 ⭐️<strong>Подпишись на уведомления: @na_fanere_bot</strong>`;
 
-if(anonsInfo.categoryTeg !== ""){announce += br + anonsInfo.categoryTeg;}
+if(anonsInfo[`${chatId}`].categoryTeg !== ""){announce += br + anonsInfo[`${chatId}`].categoryTeg;}
 return announce;   
 }
 
@@ -307,10 +308,10 @@ const countDigits = n => {
     return i;
  }
 
- const getDate = text => {
+ const getDate = (text, chatId) => {
     let day;
     if(/(\d{2}.\d{2})/.test(text) && !(/(\d{2}\.\d{2}\.\d{2,4})/.test(text))){
-        anonsInfo.date = text;
+        anonsInfo[`${chatId}`].date = text;
         day = new Date(chrono.ru.parseDate(text + `.${new Date().getFullYear()}`)).getDay();
     }
     else{
@@ -318,10 +319,10 @@ const countDigits = n => {
         day = date.getDay();
         const date_zerro = countDigits(date.getDate()) === 2? "" : 0;
         const month_zerro = countDigits(date.getMonth() + 1) === 2? "" : 0;
-        anonsInfo.date = `${date_zerro}${date.getDate()}.${month_zerro}${date.getMonth() + 1}`;
-        console.log(anonsInfo.date);
+        anonsInfo[`${chatId}`].date = `${date_zerro}${date.getDate()}.${month_zerro}${date.getMonth() + 1}`;
+        console.log(anonsInfo[`${chatId}`].date);
     }
-    anonsInfo.day = day_arr[day];
+    anonsInfo[`${chatId}`].day = day_arr[day];
  }
 
  const startText = `
@@ -333,6 +334,9 @@ bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const text = msg.text;
     const success_mes = `Информация успешно записана 🎉`
+
+    if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
+    if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
     //bot.sendMessage(chatId, `result - ${tableActions[1].patterns.test(text)}`);
     /*if(text === '/start'){
         bot.sendMessage(chatId, 'Загрузите фотограию');
@@ -341,9 +345,9 @@ bot.on('message', async msg => {
     //bot.on('/get_action', async msg => {
     //    messId = msg.message_id;
     //    console.log(`messageId is ${messId}`)
-        anonsInfo = anonsInfoInit();
-        actionMenu = actionMenuInit();
-        bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(), parse_mode: 'HTML'});
+        anonsInfo[`${chatId}`] = anonsInfoInit();
+        actionMenu[`${chatId}`] = actionMenuInit();
+        bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'});
         console.log(`message ${text}`);
     //})
          
@@ -351,81 +355,80 @@ bot.on('message', async msg => {
 
     if(get_title_flag){
         get_title_flag = false;
-        actionMenu.title = ' ✅';
+        actionMenu[`${chatId}`].title = ' ✅';
         const action_data = getAction(text);
-        anonsInfo.title = text;
+        anonsInfo[`${chatId}`].title = text;
         if(action_data){
-            anonsInfo.link = action_data.link;
-            anonsInfo.chatTitle = action_data.chat;
-            anonsInfo.categoryTeg = action_data.teg;
+            anonsInfo[`${chatId}`].link = action_data.link;
+            anonsInfo[`${chatId}`].chatTitle = action_data.chat;
+            anonsInfo[`${chatId}`].categoryTeg = action_data.teg;
         }
         else{
-            anonsInfo.link = `https://t.me/+nVgj6aipar04MjRi`
-            anonsInfo.chatTitle = `🏄‍♂️ ФАНерный чат 🏂`;
-            anonsInfo.categoryTeg = "";
+            anonsInfo[`${chatId}`].link = `https://t.me/+nVgj6aipar04MjRi`
+            anonsInfo[`${chatId}`].chatTitle = `🏄‍♂️ ФАНерный чат 🏂`;
+            anonsInfo[`${chatId}`].categoryTeg = "";
         }
         bot.sendMessage(chatId, success_mes);        
     }
     if(get_date_flag){
         get_date_flag = false;
-        actionMenu.date = ' ✅';
+        actionMenu[`${chatId}`].date = ' ✅';
         if(/(по|до|-)/.test(text)){
             let durDate = text.split(/(по|до|-)/);
             console.log(durDate[0]);
             console.log(durDate[1]);
-            getDate(durDate[0]);
+            getDate(durDate[0], chatId);
             //getDate(durDate[1]);
-            getDate(durDate[2]);
+            getDate(durDate[2], chatId);
         }
         else{
-            getDate(text);
+            getDate(text, chatId);
         }
-        
         
         bot.sendMessage(chatId, success_mes);
     }
     if(get_time_flag){
         get_time_flag = false;
-        actionMenu.time = ' ✅';
-        anonsInfo.time = text;
+        actionMenu[`${chatId}`].time = ' ✅';
+        anonsInfo[`${chatId}`].time = text;
         bot.sendMessage(chatId, success_mes);
     }
     if(get_location_flag){
         get_location_flag = false;
-        actionMenu.location = ' ✅';
+        actionMenu[`${chatId}`].location = ' ✅';
         //console.log(msg);
-        anonsInfo.locCoordinates = await getLocCoordinates(text);
-        bot.sendMessage(chatId, anonsInfo.locLink);
-        anonsInfo.location = text;
+        anonsInfo[`${chatId}`].locCoordinates = await getLocCoordinates(text);
+        bot.sendMessage(chatId, anonsInfo[`${chatId}`].locLink);
+        anonsInfo[`${chatId}`].location = text;
         bot.sendMessage(chatId, success_mes);
     }
     if(get_price_flag){
         get_price_flag = false;
-        actionMenu.price = ' ✅';
-        text !== '0' ? anonsInfo.price = text : anonsInfo.price = "Бесплатно";
+        actionMenu[`${chatId}`].price = ' ✅';
+        text !== '0' ? anonsInfo[`${chatId}`].price = text : anonsInfo[`${chatId}`].price = "Бесплатно";
         bot.sendMessage(chatId, success_mes);
     }
 
     if(get_participants_flag){
         get_participants_flag = false;
-        actionMenu.participants = ' ✅';
-        text !== '0' ? anonsInfo.participants = text : anonsInfo.participants = "Без ограничений";
+        actionMenu[`${chatId}`].participants = ' ✅';
+        text !== '0' ? anonsInfo[`${chatId}`].participants = text : anonsInfo[`${chatId}`].participants = "Без ограничений";
         bot.sendMessage(chatId, success_mes);
     }
 
     if(details_flag){
         details_flag = false;
-        actionMenu.details = ' ✅';
-        anonsInfo.details = text;
+        actionMenu[`${chatId}`].details = ' ✅';
+        anonsInfo[`${chatId}`].details = text;
         bot.sendMessage(chatId, success_mes);
     }
 });
 
 let Img;
 
-const getPhoto = async () => {
+const getPhoto = async (chatId) => {
     const koef = 1;
-    const image = anonsInfo.image;
+    const image = anonsInfo[`${chatId}`].image;
     const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
     const Img1 = await loadImage(FILE_PATH);
     const Img2 = await loadImage(`src/public/logo/logo.png`);
@@ -439,29 +442,33 @@ const getPhoto = async () => {
 	context.fillStyle = "#e85d17";
 
     context.font = `${width*koef/18}pt Ralev001`;
-	context.fillText(anonsInfo.title, 25, height-koef+width/10);
+	context.fillText(anonsInfo[`${chatId}`].title, 25, height-koef+width/10);
 
     context.fillStyle = "white";
     context.font = `${width/17}pt Ralev001`;
-	context.fillText(anonsInfo.date, width/1.29, height+width*0.08);
+	context.fillText(anonsInfo[`${chatId}`].date, width/1.29, height+width*0.08);
 
     const imgBuffer = canvas.toBuffer('image/jpeg');
-    anonsInfo.photo = `src/public/${image.file_path}`;
-	fs.writeFileSync(anonsInfo.photo, imgBuffer);
+    anonsInfo[`${chatId}`].photo = `src/public/${image.file_path}`;
+	fs.writeFileSync(anonsInfo[`${chatId}`].photo, imgBuffer);
 }
 
 bot.on('photo', async msg => {
     const chatId = msg.chat.id;
     const success_mes = `Фотография успешно загружена 🎉`;
+
+    if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
+    if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
+
     if(photo_flag){
         photo_flag = false;
-        actionMenu.photo = ' ✅';
+        actionMenu[`${chatId}`].photo = ' ✅';
         //const koef = 1;
         photoId = msg.photo[msg.photo.length-1].file_id;
-        anonsInfo.image = await bot.getFile(photoId);
+        anonsInfo[`${chatId}`].image = await bot.getFile(photoId);
 		//const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
         //anonsInfo.Img1 = await loadImage(FILE_PATH);
-        anonsInfo.photo = 1;
+        anonsInfo[`${chatId}`].photo = 1;
         bot.sendMessage(chatId, success_mes);
 		/*const Img1 = await loadImage(FILE_PATH);
 		const Img2 = await loadImage(`src/public/logo/logo.png`);
@@ -501,11 +508,13 @@ bot.on('callback_query', async msg => {
     const data = msg.data;
     const photoText = `🖼 Загрузите фотографию для абложки анонса.
 Формат фото: горизонтальное (При необходимости обрежьте поля)`;
-    const sendMess = `📭 Анонс отправлен на модерацию.
-❗️В случае возникновения вопросов, обращайтесь к @Katran1.`;
+    const sendMess = `📭 Анонс отправлен на модерацию, после одобрения он появится в нашем <a href="https://t.me/Na_Fanere">канале</a>.
+❗️В случае возникновения вопросов, обращайтесь к @Katran1`;
+
+    if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
     
-    if(anonsInfo.user === "") {anonsInfo.user = msg.from.username;}
-    if(anonsInfo.username === "") {anonsInfo.username = msg.from.first_name;}
+    if(anonsInfo[`${chatId}`].user === "") {anonsInfo[`${chatId}`].user = msg.from.username;}
+    if(anonsInfo[`${chatId}`].username === "") {anonsInfo[`${chatId}`].username = msg.from.first_name;}
     //console.log(chrono.parseDate('An appointment on Sep 12-13'));
     console.log(chrono.ru.parseDate('25.10.23')); 
     console.log(chrono.ru.parseDate('c 25.10 по 23.11')); 
@@ -538,7 +547,7 @@ bot.on('callback_query', async msg => {
             photo_flag = false;
             //actionMenu.title = anonsInfo.title ? ' ✅' : '';
             //actionMenu.photo = anonsInfo.photo ? ' ✅' : '';
-            bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(), parse_mode: 'HTML'});
+            bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'});
             break;
         case 'titleOfAction': 
             bot.deleteMessage(chatId, msgId);
@@ -592,13 +601,13 @@ bot.on('callback_query', async msg => {
             break;
         case 'getPrevie':
             //console.log(anonsInfo.photo);
-            if(anonsInfo.photo !== ""  
-            && anonsInfo.title !== ""
-            && anonsInfo.date !== ""
-            && anonsInfo.time !== ""
-            && anonsInfo.location !== ""){
-                await getPhoto();
-                await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo.photo), {caption: getText(), parse_mode: 'HTML'});
+            if(anonsInfo[`${chatId}`].photo !== ""  
+            && anonsInfo[`${chatId}`].title !== ""
+            && anonsInfo[`${chatId}`].date !== ""
+            && anonsInfo[`${chatId}`].time !== ""
+            && anonsInfo[`${chatId}`].location !== ""){
+                await getPhoto(chatId);
+                await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: getText(chatId), parse_mode: 'HTML'});
                 await bot.sendMessage(chatId, "Отправьте анонс на модерацию или продолжите редактирование", previewMenu);
             }
             else{
@@ -606,8 +615,8 @@ bot.on('callback_query', async msg => {
             }
             break;
         case 'send':
-                await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo.photo), {caption: getText(), reply_markup: inWork, parse_mode: 'HTML', message_thread_id: 12773});
-                bot.sendMessage(chatId, sendMess);
+                await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: getText(chatId), reply_markup: inWork, parse_mode: 'HTML', message_thread_id: 12773});
+                bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
             break;
 
         default:
