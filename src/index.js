@@ -354,7 +354,7 @@ bot.on('message', async msg => {
     }
 
     if(get_title_flag){
-        get_title_flag = false;
+        //get_title_flag = false;
         actionMenu[`${chatId}`].title = ' ✅';
         const action_data = getAction(text);
         anonsInfo[`${chatId}`].title = text;
@@ -371,7 +371,7 @@ bot.on('message', async msg => {
         bot.sendMessage(chatId, success_mes);        
     }
     if(get_date_flag){
-        get_date_flag = false;
+        //get_date_flag = false;
         actionMenu[`${chatId}`].date = ' ✅';
         if(/(по|до|-)/.test(text)){
             let durDate = text.split(/(по|до|-)/);
@@ -388,13 +388,13 @@ bot.on('message', async msg => {
         bot.sendMessage(chatId, success_mes);
     }
     if(get_time_flag){
-        get_time_flag = false;
+        //get_time_flag = false;
         actionMenu[`${chatId}`].time = ' ✅';
         anonsInfo[`${chatId}`].time = text;
         bot.sendMessage(chatId, success_mes);
     }
     if(get_location_flag){
-        get_location_flag = false;
+        //get_location_flag = false;
         actionMenu[`${chatId}`].location = ' ✅';
         //console.log(msg);
         anonsInfo[`${chatId}`].locCoordinates = await getLocCoordinates(text);
@@ -403,21 +403,21 @@ bot.on('message', async msg => {
         bot.sendMessage(chatId, success_mes);
     }
     if(get_price_flag){
-        get_price_flag = false;
+        //get_price_flag = false;
         actionMenu[`${chatId}`].price = ' ✅';
         text !== '0' ? anonsInfo[`${chatId}`].price = text : anonsInfo[`${chatId}`].price = "Бесплатно";
         bot.sendMessage(chatId, success_mes);
     }
 
     if(get_participants_flag){
-        get_participants_flag = false;
+        //get_participants_flag = false;
         actionMenu[`${chatId}`].participants = ' ✅';
         text !== '0' ? anonsInfo[`${chatId}`].participants = text : anonsInfo[`${chatId}`].participants = "Без ограничений";
         bot.sendMessage(chatId, success_mes);
     }
 
     if(details_flag){
-        details_flag = false;
+        //details_flag = false;
         actionMenu[`${chatId}`].details = ' ✅';
         anonsInfo[`${chatId}`].details = text;
         bot.sendMessage(chatId, success_mes);
@@ -461,7 +461,7 @@ bot.on('photo', async msg => {
     if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
 
     if(photo_flag){
-        photo_flag = false;
+        //photo_flag = false;
         actionMenu[`${chatId}`].photo = ' ✅';
         //const koef = 1;
         photoId = msg.photo[msg.photo.length-1].file_id;
