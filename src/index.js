@@ -193,10 +193,13 @@ const getRacketsMenu = () => {return ({
     }
 }*/
 
-const nextButton = {
-    reply_markup: {
-        inline_keyboard: [[{text: 'Далее ➡️', callback_data: 'next'}]]
-    }
+const nextButton = (title) => {
+    return({
+        reply_markup: {
+            inline_keyboard: [[{text: title, callback_data: 'next'}]]
+        }
+    })
+    
 }
 
 const previewMenu = {
@@ -332,8 +335,11 @@ const countDigits = n => {
 
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
+    const msgId = msg.message_id;
     const text = msg.text;
-    const success_mes = `Информация успешно записана 🎉`
+    const success_mes = `Информация успешно записана 🎉`;
+    console.log(msg);
+    
 
     if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
     if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
@@ -355,6 +361,7 @@ bot.on('message', async msg => {
 
     if(get_title_flag){
         //get_title_flag = false;
+        bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].title = ' ✅';
         const action_data = getAction(text);
         anonsInfo[`${chatId}`].title = text;
@@ -368,10 +375,11 @@ bot.on('message', async msg => {
             anonsInfo[`${chatId}`].chatTitle = `🏄‍♂️ ФАНерный чат 🏂`;
             anonsInfo[`${chatId}`].categoryTeg = "";
         }
-        bot.sendMessage(chatId, success_mes);        
+        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));        
     }
     if(get_date_flag){
         //get_date_flag = false;
+        bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].date = ' ✅';
         if(/(по|до|-)/.test(text)){
             let durDate = text.split(/(по|до|-)/);
@@ -385,42 +393,48 @@ bot.on('message', async msg => {
             getDate(text, chatId);
         }
         
-        bot.sendMessage(chatId, success_mes);
+        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_time_flag){
         //get_time_flag = false;
+        bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].time = ' ✅';
         anonsInfo[`${chatId}`].time = text;
-        bot.sendMessage(chatId, success_mes);
+        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_location_flag){
         //get_location_flag = false;
+        bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].location = ' ✅';
         //console.log(msg);
         anonsInfo[`${chatId}`].locCoordinates = await getLocCoordinates(text);
         bot.sendMessage(chatId, anonsInfo[`${chatId}`].locLink);
         anonsInfo[`${chatId}`].location = text;
-        bot.sendMessage(chatId, success_mes);
+        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_price_flag){
         //get_price_flag = false;
+        bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].price = ' ✅';
         text !== '0' ? anonsInfo[`${chatId}`].price = text : anonsInfo[`${chatId}`].price = "Бесплатно";
-        bot.sendMessage(chatId, success_mes);
+        //bot.deleteMessage(chatId, msgId);
+        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
 
     if(get_participants_flag){
         //get_participants_flag = false;
+        bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].participants = ' ✅';
         text !== '0' ? anonsInfo[`${chatId}`].participants = text : anonsInfo[`${chatId}`].participants = "Без ограничений";
-        bot.sendMessage(chatId, success_mes);
+        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
 
     if(details_flag){
         //details_flag = false;
+        bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].details = ' ✅';
         anonsInfo[`${chatId}`].details = text;
-        bot.sendMessage(chatId, success_mes);
+        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
 });
 
@@ -455,6 +469,7 @@ const getPhoto = async (chatId) => {
 
 bot.on('photo', async msg => {
     const chatId = msg.chat.id;
+    const msgId = msg.message_id;
     const success_mes = `Фотография успешно загружена 🎉`;
 
     if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
@@ -462,6 +477,7 @@ bot.on('photo', async msg => {
 
     if(photo_flag){
         //photo_flag = false;
+        bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].photo = ' ✅';
         //const koef = 1;
         photoId = msg.photo[msg.photo.length-1].file_id;
@@ -469,7 +485,7 @@ bot.on('photo', async msg => {
 		//const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
         //anonsInfo.Img1 = await loadImage(FILE_PATH);
         anonsInfo[`${chatId}`].photo = 1;
-        bot.sendMessage(chatId, success_mes);
+        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
 		/*const Img1 = await loadImage(FILE_PATH);
 		const Img2 = await loadImage(`src/public/logo/logo.png`);
         const width = Img1.width;
@@ -501,6 +517,8 @@ const getLocCoordinates = async (adr) => {
     coord = data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos.replace(" ", ",");
     return coord;
 }
+
+let dataId;
      
 bot.on('callback_query', async msg => {
     const chatId = msg.message.chat.id;
@@ -511,6 +529,7 @@ bot.on('callback_query', async msg => {
     const sendMess = `📭 Анонс отправлен на модерацию, после одобрения он появится в нашем <a href="https://t.me/Na_Fanere">канале</a>.
 ❗️В случае возникновения вопросов, обращайтесь к @Katran1`;
 
+    if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
     if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
     
     if(anonsInfo[`${chatId}`].user === "") {anonsInfo[`${chatId}`].user = msg.from.username;}
@@ -551,33 +570,34 @@ bot.on('callback_query', async msg => {
             break;
         case 'titleOfAction': 
             bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, 'Введите название мероприятия', nextButton);
+            bot.sendMessage(chatId, 'Введите название мероприятия', nextButton('Вернуться ⬅️'));
             get_title_flag = true;
             break;
         case 'dateOfAction': 
             bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, 'Укажите дату проведения мероприятия', nextButton);
+            bot.sendMessage(chatId, 'Укажите дату проведения мероприятия', nextButton('Вернуться ⬅️'));
+            dataId = msgId;
             get_date_flag = true;
             break;
         case 'timeOfAction': 
             bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, 'Укажите время проведения мероприятия', nextButton);
+            bot.sendMessage(chatId, 'Укажите время проведения мероприятия', nextButton('Вернуться ⬅️'));
             get_time_flag = true;
             break;
         case 'locationOfAction': 
             bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, 'Укажите место проведения мероприятия', nextButton);
+            bot.sendMessage(chatId, 'Укажите место проведения мероприятия', nextButton('Вернуться ⬅️'));
             get_location_flag = true;
             //let lok = await yaLock();
             break;
         case 'priceOfAction': 
             bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, 'Укажите стоимость участия в мероприятии', nextButton);
+            bot.sendMessage(chatId, 'Укажите стоимость участия в мероприятии', nextButton('Вернуться ⬅️'));
             get_price_flag = true;
             break;
         case 'numberOfParticipants': 
             bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, 'Укажите количество участников', nextButton);
+            bot.sendMessage(chatId, 'Укажите количество участников', nextButton('Вернуться ⬅️'));
             get_participants_flag = true;
             break;
         /*case 'beginners': 
@@ -591,13 +611,13 @@ bot.on('callback_query', async msg => {
             break;*/
         case 'detailsOfAction':
             bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, 'Укажите дополнительную информацию к анонсу', nextButton);
+            bot.sendMessage(chatId, 'Укажите дополнительную информацию к анонсу', nextButton('Вернуться ⬅️'));
             details_flag = true;
             break;
         case 'photo':
             photo_flag = true; 
             bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, photoText, nextButton);
+            bot.sendMessage(chatId, photoText, nextButton('Вернуться ⬅️'));
             break;
         case 'getPrevie':
             //console.log(anonsInfo.photo);
@@ -606,6 +626,7 @@ bot.on('callback_query', async msg => {
             && anonsInfo[`${chatId}`].date !== ""
             && anonsInfo[`${chatId}`].time !== ""
             && anonsInfo[`${chatId}`].location !== ""){
+                bot.deleteMessage(chatId, msgId);
                 await getPhoto(chatId);
                 await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: getText(chatId), parse_mode: 'HTML'});
                 await bot.sendMessage(chatId, "Отправьте анонс на модерацию или продолжите редактирование", previewMenu);
