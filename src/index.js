@@ -305,7 +305,8 @@ const anonsInfoInit = () => {
 //let anonsInfo = anonsInfoInit();
 let anonsInfo = new Array();
 const getText = (chatId) => {
-let announce = `<strong>${anonsInfo[`${chatId}`].date} (${anonsInfo[`${chatId}`].day}) - ${anonsInfo[`${chatId}`].title}
+    const NA_FANERE_BOT = "https://t.me/na_fanere_bot";
+    let announce = `<strong>${anonsInfo[`${chatId}`].date} (${anonsInfo[`${chatId}`].day}) - ${anonsInfo[`${chatId}`].title}
 
 🧑‍💼Организатор: @${anonsInfo[`${chatId}`].user} (${anonsInfo[`${chatId}`].username})</strong>
 
@@ -314,13 +315,12 @@ let announce = `<strong>${anonsInfo[`${chatId}`].date} (${anonsInfo[`${chatId}`]
 💸 ${anonsInfo[`${chatId}`].price}
 👥 ${anonsInfo[`${chatId}`].participants/*anonsInfo.level*/}` + br + br;
 
-if(anonsInfo[`${chatId}`].details !== ""){announce += '➕' + anonsInfo[`${chatId}`].details + br + br;}
+    if(anonsInfo[`${chatId}`].details !== ""){announce += '➕' + anonsInfo[`${chatId}`].details + br + br;}
 
-announce += `📝Чат: <a href="${anonsInfo[`${chatId}`].link}">${anonsInfo[`${chatId}`].chatTitle}</a>
-⭐️<strong>Подпишись на уведомления: @na_fanere_bot</strong>`;
+    announce += `⭐️Чат: <a href="${anonsInfo[`${chatId}`].link}">${anonsInfo[`${chatId}`].chatTitle}</a> | <a href=${NA_FANERE_BOT}>Бот уведомления</a>`;
 
-if(anonsInfo[`${chatId}`].categoryTeg !== ""){announce += br + anonsInfo[`${chatId}`].categoryTeg;}
-return announce;   
+    if(anonsInfo[`${chatId}`].categoryTeg !== ""){announce += br + anonsInfo[`${chatId}`].categoryTeg;}
+    return announce;   
 }
 
 let messId;
