@@ -1,7 +1,10 @@
 const TelegramApi = require("node-telegram-bot-api");
 const {loadImage, createCanvas} = require('canvas');
 const fs = require("fs");
+const express = require("express");
 const chrono = require("chrono-node");
+const ExcelJS = require("exceljs");
+var YandexDisk = require('yandex-disk').YandexDisk;
 const getTeg = require("./getTeg");
 
 const dotenv = require("dotenv");
@@ -9,8 +12,21 @@ dotenv.config();
 
 const TOKEN = process.env.TOKEN;
 const YAKEY = process.env.YAKEY;
+const YADLOGIN = process.env.YADLOGIN;
+const YADPASSW = process.env.YADPASSW;
+const PORT = 3000;
 
-const bot = new TelegramApi(TOKEN, {polling: true});
+const bot = new TelegramApi(TOKEN, {polling: true, baseApiUrl: "http://127.0.0.1:8081"});
+const disk = new YandexDisk(YADLOGIN, YADPASSW);
+const app = express();
+
+app.get('/', function (req, res) {
+    console.log(req);
+    res.send('Hello World')
+})
+
+app.listen(PORT, () => console.log(`server started in potr: ${PORT}`));
+
 //const Img = 'https://www.yandex.ru/images/search?pos=0&from=tabbar&img_url=https%3A%2F%2Finfostart.ru%2Fupload%2Fiblock%2Ff0a%2Ff0a7a217efa125f37974167509cbc4cc.jpg&text=node-telegram-bot-api+%D0%BA%D0%B0%D0%BA+%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D1%82%D1%8C+%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8E+%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D1%83+%D0%BF%D0%BE+url+%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B5&rpt=simage&lr=10738';
 
 bot.setMyCommands([
@@ -20,7 +36,22 @@ bot.setMyCommands([
 
 let table = false;
 
-const getAction = (title) => {
+const getAction = async (title) => {
+    //const tableAddr = '/home/PashkaKra/Документы/WebProj/BigSquirrelBot/actionsTable.xlsx';
+    const tableAddr = 'https://disk.yandex.ru/edit/disk/disk%2FactionsTable.xlsx?sk=yc038db9fa2e6136804c0b1aa61f7ffc2';
+    await disk.readFile('./actionsTable.xlsx', '1251', (err, data) => {
+        console.log("vhhj");
+        console.log(data);
+        /*const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(data);
+        const worksheet = workbook.getWorksheet();
+        worksheet.eachRow({includeEmpty: true}, (row, rowNumber) =>{
+            console.log(worksheet.getCell(`E${rowNumber}`).value);
+        });*/
+    });
+    
+    
+
     const tableActions = [
         {action: "Настольный теннис", teg: "#настольныйтеннис", link: "https://t.me/+6IclAEAzk_c0NTZi", chat: "🏸Ракетки", patterns: /(настольн).+(теннис)/i},
         {action: "Пинг-понг", teg: "#настольныйтеннис", link: "https://t.me/+6IclAEAzk_c0NTZi", chat: "🏸Ракетки", patterns: /(пинг.понг|пингпонг)/i},
