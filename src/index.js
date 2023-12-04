@@ -8,21 +8,24 @@ var YandexDisk = require('yandex-disk').YandexDisk;
 const getTeg = require("./getTeg");
 
 const dotenv = require("dotenv");
+const { FILE } = require("dns");
 dotenv.config();
 
 const TOKEN = process.env.TOKEN;
 const YAKEY = process.env.YAKEY;
 const YADLOGIN = process.env.YADLOGIN;
 const YADPASSW = process.env.YADPASSW;
-const PORT = 3000;
+const PORT = process.env.PORT;
+const TELEGRAM_LOCAL_SERVER = process.env.TELEGRAM_LOCAL_SERVER;
 
-const bot = new TelegramApi(TOKEN, {polling: true, baseApiUrl: "http://127.0.0.1:8081"});
+const telegram_bot = () => TELEGRAM_LOCAL_SERVER === 'true' ? new TelegramApi(TOKEN, {polling: true, baseApiUrl: "http://127.0.0.1:8081"}) : new TelegramApi(TOKEN, {polling: true});
+const bot = telegram_bot();
 const disk = new YandexDisk(YADLOGIN, YADPASSW);
 const app = express();
 
 app.get('/', function (req, res) {
     console.log(req);
-    res.send('Hello World')
+    res.send('Hello World');
 })
 
 app.listen(PORT, () => console.log(`server started in potr: ${PORT}`));
@@ -38,7 +41,7 @@ let table = false;
 
 const getAction = async (title) => {
     //const tableAddr = '/home/PashkaKra/Документы/WebProj/BigSquirrelBot/actionsTable.xlsx';
-    const tableAddr = 'https://disk.yandex.ru/edit/disk/disk%2FactionsTable.xlsx?sk=yc038db9fa2e6136804c0b1aa61f7ffc2';
+    /*const tableAddr = 'https://disk.yandex.ru/edit/disk/disk%2FactionsTable.xlsx?sk=yc038db9fa2e6136804c0b1aa61f7ffc2';
     await disk.readFile('./actionsTable.xlsx', '1251', (err, data) => {
         console.log("vhhj");
         console.log(data);
@@ -47,8 +50,8 @@ const getAction = async (title) => {
         const worksheet = workbook.getWorksheet();
         worksheet.eachRow({includeEmpty: true}, (row, rowNumber) =>{
             console.log(worksheet.getCell(`E${rowNumber}`).value);
-        });*/
-    });
+        });
+    });*/
     
     
 
@@ -317,7 +320,7 @@ const getText = (chatId) => {
 
     if(anonsInfo[`${chatId}`].details !== ""){announce += '➕' + anonsInfo[`${chatId}`].details + br + br;}
 
-    announce += `⭐️Чат: <a href="${anonsInfo[`${chatId}`].link}">${anonsInfo[`${chatId}`].chatTitle}</a> | <a href=${NA_FANERE_BOT}>Бот уведомления</a>`;
+    announce += `⭐️Чат: <a href="${anonsInfo[`${chatId}`].link}">${anonsInfo[`${chatId}`].chatTitle}</a> | <a href="${NA_FANERE_BOT}">Бот уведомления</a>`;
 
     if(anonsInfo[`${chatId}`].categoryTeg !== ""){announce += br + anonsInfo[`${chatId}`].categoryTeg;}
     return announce;   
@@ -364,11 +367,27 @@ const countDigits = n => {
  ❗️Поля, отмеченные «*» обязательны для заполнения
      `
 
+
+const returnToMenu = (chatId) => {
+    const success_mes = `Информация успешно записана 🎉`;
+    get_title_flag = false;
+    get_date_flag = false;
+    get_time_flag = false;
+    get_location_flag = false;
+    get_price_flag = false;
+    get_participants_flag = false;
+    details_flag = false;
+    photo_flag = false;
+    bot.sendMessage(chatId, success_mes);
+    bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'});
+}
+
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
     const text = msg.text;
-    const success_mes = `Информация успешно записана 🎉`;
+ 
+    //const success_mes = `Информация успешно записана 🎉`;
     console.log(msg);
     
 
@@ -394,7 +413,7 @@ bot.on('message', async msg => {
         //get_title_flag = false;
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].title = ' ✅';
-        const action_data = getAction(text);
+        const action_data = await getAction(text);
         anonsInfo[`${chatId}`].title = text;
         if(action_data){
             anonsInfo[`${chatId}`].link = action_data.link;
@@ -406,7 +425,8 @@ bot.on('message', async msg => {
             anonsInfo[`${chatId}`].chatTitle = `🏄‍♂️ ФАНерный чат 🏂`;
             anonsInfo[`${chatId}`].categoryTeg = "";
         }
-        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));        
+        returnToMenu(chatId);
+        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));        
     }
     if(get_date_flag){
         //get_date_flag = false;
@@ -423,15 +443,16 @@ bot.on('message', async msg => {
         else{
             getDate(text, chatId);
         }
-        
-        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
+        returnToMenu(chatId);
+        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_time_flag){
         //get_time_flag = false;
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].time = ' ✅';
         anonsInfo[`${chatId}`].time = text;
-        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
+        returnToMenu(chatId);
+        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_location_flag){
         //get_location_flag = false;
@@ -441,7 +462,8 @@ bot.on('message', async msg => {
         anonsInfo[`${chatId}`].locCoordinates = await getLocCoordinates(text);
         bot.sendMessage(chatId, anonsInfo[`${chatId}`].locLink);
         anonsInfo[`${chatId}`].location = text;
-        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
+        returnToMenu(chatId);
+        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_price_flag){
         //get_price_flag = false;
@@ -449,7 +471,8 @@ bot.on('message', async msg => {
         actionMenu[`${chatId}`].price = ' ✅';
         text !== '0' ? anonsInfo[`${chatId}`].price = text : anonsInfo[`${chatId}`].price = "Бесплатно";
         //bot.deleteMessage(chatId, msgId);
-        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
+        returnToMenu(chatId);
+        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
 
     if(get_participants_flag){
@@ -457,7 +480,8 @@ bot.on('message', async msg => {
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].participants = ' ✅';
         text !== '0' ? anonsInfo[`${chatId}`].participants = text : anonsInfo[`${chatId}`].participants = "Без ограничений";
-        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
+        returnToMenu(chatId);
+        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
 
     if(details_flag){
@@ -465,7 +489,8 @@ bot.on('message', async msg => {
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].details = ' ✅';
         anonsInfo[`${chatId}`].details = text;
-        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
+        returnToMenu(chatId);
+        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
 });
 
@@ -474,7 +499,11 @@ let Img;
 const getPhoto = async (chatId) => {
     const koef = 1;
     const image = anonsInfo[`${chatId}`].image;
-    const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
+    FILE_PATH = TELEGRAM_LOCAL_SERVER === 'true' ? image.file_path : `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
+    //const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
+    //const FILE_PATH = `http://127.0.0.1:8081/file/bot${TOKEN}/${image.file_path}`;
+    //const FILE_PATH = `http://127.0.0.1:8081/tg-files/${TOKEN}/${image.file_path}`;
+    //const Img1 = await loadImage(FILE_PATH);
     const Img1 = await loadImage(FILE_PATH);
     const Img2 = await loadImage(`src/public/logo/logo.png`);
     const width = Img1.width;
@@ -494,7 +523,9 @@ const getPhoto = async (chatId) => {
 	context.fillText(anonsInfo[`${chatId}`].date, width/1.29, height+width*0.08);
 
     const imgBuffer = canvas.toBuffer('image/jpeg');
-    anonsInfo[`${chatId}`].photo = `src/public/${image.file_path}`;
+    //anonsInfo[`${chatId}`].photo = `src/public/${image.file_path}`;
+    //anonsInfo[`${chatId}`].photo = `src/public/file_4`;
+    anonsInfo[`${chatId}`].photo = TELEGRAM_LOCAL_SERVER === 'true' ? image.file_path : `src/public/${image.file_path}`;
 	fs.writeFileSync(anonsInfo[`${chatId}`].photo, imgBuffer);
 }
 
@@ -513,10 +544,13 @@ bot.on('photo', async msg => {
         //const koef = 1;
         photoId = msg.photo[msg.photo.length-1].file_id;
         anonsInfo[`${chatId}`].image = await bot.getFile(photoId);
-		//const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
+		//const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${anonsInfo[`${chatId}`].image.file_path}`;
+        //const Img1 = await loadImage(FILE_PATH);
+        //bot.sendPhoto(chatId, Img1);
         //anonsInfo.Img1 = await loadImage(FILE_PATH);
         anonsInfo[`${chatId}`].photo = 1;
-        bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
+        returnToMenu(chatId);
+        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
 		/*const Img1 = await loadImage(FILE_PATH);
 		const Img2 = await loadImage(`src/public/logo/logo.png`);
         const width = Img1.width;
@@ -659,7 +693,7 @@ bot.on('callback_query', async msg => {
             && anonsInfo[`${chatId}`].location !== ""){
                 bot.deleteMessage(chatId, msgId);
                 await getPhoto(chatId);
-                await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: getText(chatId), parse_mode: 'HTML'});
+                await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), parse_mode: 'HTML'});
                 await bot.sendMessage(chatId, "Отправьте анонс на модерацию или продолжите редактирование", previewMenu);
             }
             else{
