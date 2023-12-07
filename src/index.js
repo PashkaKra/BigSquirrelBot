@@ -108,18 +108,18 @@ const getActionMenu = (chatId) => {return({
     //reply_markup: {
         inline_keyboard: [
             //[{text: `Тип мероприятия${actionMenu.type}`, callback_data: 'typeOfAction'}],
-            [{text: `*📖 Заголовок мероприятия${actionMenu[`${chatId}`].title}`, callback_data: 'titleOfAction'}],
-            [{text: `*📆 Дата${actionMenu[`${chatId}`].date}`, callback_data: 'dateOfAction'}],
-            [{text: `*⏰ Время${actionMenu[`${chatId}`].time}`, callback_data: 'timeOfAction'}],
-            [{text: `*📍 Локация${actionMenu[`${chatId}`].location}`, callback_data: 'locationOfAction'}],
-            [{text: `💸 Стоимость${actionMenu[`${chatId}`].price}`, callback_data: 'priceOfAction'}],
-            [{text: `👥 Количество участников${actionMenu[`${chatId}`].participants}`, callback_data: 'numberOfParticipants'}],
+            [{text: `*📖 Заголовок мероприятия${actionMenu[`${chatId}`].title}`, callback_data: JSON.stringify({'command': 'titleOfAction'})}],
+            [{text: `*📆 Дата${actionMenu[`${chatId}`].date}`, callback_data: JSON.stringify({command: 'dateOfAction'})}],
+            [{text: `*⏰ Время${actionMenu[`${chatId}`].time}`, callback_data: JSON.stringify({command: 'timeOfAction'})}],
+            [{text: `*📍 Локация${actionMenu[`${chatId}`].location}`, callback_data: JSON.stringify({command: 'locationOfAction'})}],
+            [{text: `💸 Стоимость${actionMenu[`${chatId}`].price}`, callback_data: JSON.stringify({command: 'priceOfAction'})}],
+            [{text: `👥 Количество участников${actionMenu[`${chatId}`].participants}`, callback_data: JSON.stringify({command: 'numberOfParticipants'})}],
             /*[{text: `🥉 Новички${actionMenu.lev.beginners}`, callback_data: 'beginners'},
             {text: `🥈 Любители${actionMenu.lev.fan}`, callback_data: 'fan'},
             {text: `🥇 Про${actionMenu.lev.pro}`, callback_data: 'pro'},],*/
-            [{text: `➕ Дополнительная информация${actionMenu[`${chatId}`].details}`, callback_data: 'detailsOfAction'}],
-            [{text: `*🏞 Фотообложка${actionMenu[`${chatId}`].photo}`, callback_data: 'photo'}],
-            [{text: 'Показать превью', callback_data: 'getPrevie'}],
+            [{text: `➕ Дополнительная информация${actionMenu[`${chatId}`].details}`, callback_data: JSON.stringify({command: 'detailsOfAction'})}],
+            [{text: `*🏞 Фотообложка${actionMenu[`${chatId}`].photo}`, callback_data: JSON.stringify({command: 'photo'})}],
+            [{text: 'Показать превью', callback_data: JSON.stringify({command: 'getPrevie'})}],
         ]
     //}
 })}
@@ -230,7 +230,7 @@ const getRacketsMenu = () => {return ({
 const nextButton = (title) => {
     return({
         reply_markup: {
-            inline_keyboard: [[{text: title, callback_data: 'next'}]]
+            inline_keyboard: [[{text: title, callback_data: JSON.stringify({command: 'next'})}]]
         }
     })
     
@@ -239,15 +239,20 @@ const nextButton = (title) => {
 const previewMenu = {
     reply_markup: {
         inline_keyboard: [
-            [{text: 'Редактировать ✏️', callback_data: 'next'}, {text: 'Отправить 📤', callback_data: 'send'}],
+            [{text: 'Редактировать ✏️', callback_data: JSON.stringify({command: 'next'})}, {text: 'Отправить 📤', callback_data: JSON.stringify({command: 'send'})}],
         ]
     }
 }
 
-const inWork = {
-    inline_keyboard: [
-        [{text: 'Принять ✅', callback_data: 'accept'}, {text: 'Отклонить ❌', callback_data: 'reject'}],
-    ]
+const inWork = (chatId) => {
+    return({
+        inline_keyboard: [
+            [
+                {text: 'Принять ✅', callback_data: JSON.stringify({command: 'accept', chatId: chatId})},
+                {text: 'Отклонить ❌', callback_data: JSON.stringify({command: 'reject', chatId: chatId})}
+            ],
+        ]
+    });
 }
 
 const startMenu ={
@@ -588,12 +593,12 @@ let dataId;
 bot.on('callback_query', async msg => {
     const chatId = msg.message.chat.id;
     const msgId = msg.message.message_id;
-    const data = msg.data;
+    const data = JSON.parse(msg.data);
     const photoText = `🖼 Загрузите фотографию для абложки анонса.
 Формат фото: горизонтальное (При необходимости обрежьте поля)`;
     const sendMess = `📭 Анонс отправлен на модерацию, после одобрения он появится в нашем <a href="https://t.me/Na_Fanere">канале</a>.
 ❗️В случае возникновения вопросов, обращайтесь к @Katran1`;
-
+    console.log(msg);
     if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
     if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
     
@@ -604,7 +609,7 @@ bot.on('callback_query', async msg => {
     console.log(chrono.ru.parseDate('c 25.10 по 23.11')); 
     //console.log(msg);
     //console.log(data);
-    switch(data){
+    switch(data.command){
         /*case 'typeOfAction':
             bot.deleteMessage(chatId, msgId);
             bot.sendMessage(chatId, 'Выбирите вид спорта', getRacketsMenu());
@@ -701,10 +706,17 @@ bot.on('callback_query', async msg => {
             }
             break;
         case 'send':
-                await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: getText(chatId), reply_markup: inWork, parse_mode: 'HTML', message_thread_id: 12773});
-                bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
+            console.log(anonsInfo[`${chatId}`].photo);
+            await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), reply_markup: inWork(chatId), parse_mode: 'HTML', message_thread_id: 12773});
+            await bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
             break;
-
+        case 'accept':
+            await bot.sendMessage(-1001611832901, `Анонс обработан @${msg.from.username}`, {message_thread_id: 12773, reply_to_message_id: msgId});
+            await bot.sendMessage(data.chatId, `Анонс прошел модерацию и запланирован в канал @na_fanere`);
+            break;
+        case 'reject':
+            await bot.sendMessage(-1001611832901, `Анонс отклонён @${msg.from.username}`, {message_thread_id: 12773, reply_to_message_id: msgId});
+            await bot.sendMessage(data.chatId, `Анонс не прошел модерацию. Просьба уточнить детали у @${msg.from.username}`);
         default:
             console.log("test");
     //        bot.deleteMessage(chatId, )
