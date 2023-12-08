@@ -546,12 +546,13 @@ bot.on('photo', async msg => {
     if(photo_flag){
         //photo_flag = false;
         bot.deleteMessage(chatId, msgId-1);
-        actionMenu[`${chatId}`].photo = ' ✅';
         //const koef = 1;
-        const photoId = msg.photo[msg.photo.length-1].file_id;
+        
         const width = msg.photo[msg.photo.length-1].width;
         const height = msg.photo[msg.photo.length-1].height;
         if(width/height > 1.2){
+            const photoId = msg.photo[msg.photo.length-1].file_id;
+            actionMenu[`${chatId}`].photo = ' ✅';
             anonsInfo[`${chatId}`].image = await bot.getFile(photoId);
             //const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${anonsInfo[`${chatId}`].image.file_path}`;
             //const Img1 = await loadImage(FILE_PATH);
