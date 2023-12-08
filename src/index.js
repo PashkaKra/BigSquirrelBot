@@ -13,10 +13,10 @@ dotenv.config();
 
 const TOKEN = process.env.TOKEN;
 const YAKEY = process.env.YAKEY;
-const YADLOGIN = process.env.YADLOGIN;
-const YADPASSW = process.env.YADPASSW;
 const PORT = process.env.PORT;
 const TELEGRAM_LOCAL_SERVER = process.env.TELEGRAM_LOCAL_SERVER;
+const CHAT_ID = process.env.CHAT_ID;
+const THREAD_ID = process.env.THREAD_ID;
 
 const telegram_bot = () => TELEGRAM_LOCAL_SERVER === 'true' ? new TelegramApi(TOKEN, {polling: true, baseApiUrl: "http://127.0.0.1:8081"}) : new TelegramApi(TOKEN, {polling: true});
 const bot = telegram_bot();
@@ -707,16 +707,16 @@ bot.on('callback_query', async msg => {
             break;
         case 'send':
             console.log(anonsInfo[`${chatId}`].photo);
-            await bot.sendPhoto(-1001611832901, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), reply_markup: inWork(chatId), parse_mode: 'HTML', message_thread_id: 12773});
+            await bot.sendPhoto(CHAT_ID, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), reply_markup: inWork(chatId), parse_mode: 'HTML', message_thread_id: THREAD_ID});
             await bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
             break;
         case 'accept':
-            await bot.sendMessage(-1001611832901, `Анонс обработан @${msg.from.username}`, {message_thread_id: 12773, reply_to_message_id: msgId});
-            await bot.sendMessage(data.chatId, `Анонс прошел модерацию и запланирован в канал @na_fanere`);
+            await bot.sendMessage(CHAT_ID, `Анонс обработан @${msg.from.username}`, {message_thread_id: THREAD_ID, reply_to_message_id: msgId});
+            await bot.sendMessage(data.chatId, `💛Анонс прошел модерацию и запланирован в канал @na_fanere`);
             break;
         case 'reject':
-            await bot.sendMessage(-1001611832901, `Анонс отклонён @${msg.from.username}`, {message_thread_id: 12773, reply_to_message_id: msgId});
-            await bot.sendMessage(data.chatId, `Анонс не прошел модерацию. Просьба уточнить детали у @${msg.from.username}`);
+            await bot.sendMessage(CHAT_ID, `Анонс отклонён @${msg.from.username}`, {message_thread_id: THREAD_ID, reply_to_message_id: msgId});
+            await bot.sendMessage(data.chatId, `💔Анонс не прошел модерацию. Просьба уточнить детали у @${msg.from.username}`);
         default:
             console.log("test");
     //        bot.deleteMessage(chatId, )
