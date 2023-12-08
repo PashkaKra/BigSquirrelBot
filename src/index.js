@@ -20,7 +20,7 @@ const THREAD_ID = process.env.THREAD_ID;
 
 const telegram_bot = () => TELEGRAM_LOCAL_SERVER === 'true' ? new TelegramApi(TOKEN, {polling: true, baseApiUrl: "http://127.0.0.1:8081"}) : new TelegramApi(TOKEN, {polling: true});
 const bot = telegram_bot();
-const disk = new YandexDisk(YADLOGIN, YADPASSW);
+//const disk = new YandexDisk(YADLOGIN, YADPASSW);
 const app = express();
 
 app.get('/', function (req, res) {
@@ -537,6 +537,7 @@ const getPhoto = async (chatId) => {
 bot.on('photo', async msg => {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
+    console.log(msg);
     const success_mes = `Фотография успешно загружена 🎉`;
 
     if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
@@ -547,37 +548,44 @@ bot.on('photo', async msg => {
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].photo = ' ✅';
         //const koef = 1;
-        photoId = msg.photo[msg.photo.length-1].file_id;
-        anonsInfo[`${chatId}`].image = await bot.getFile(photoId);
-		//const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${anonsInfo[`${chatId}`].image.file_path}`;
-        //const Img1 = await loadImage(FILE_PATH);
-        //bot.sendPhoto(chatId, Img1);
-        //anonsInfo.Img1 = await loadImage(FILE_PATH);
-        anonsInfo[`${chatId}`].photo = 1;
-        returnToMenu(chatId);
-        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
-		/*const Img1 = await loadImage(FILE_PATH);
-		const Img2 = await loadImage(`src/public/logo/logo.png`);
-        const width = Img1.width;
-        const height = Img1.height;
-        const k = (height - width)+width*14/100;
-        const canvas = createCanvas(width, height+width*14/100);
-		const context = canvas.getContext('2d');
-		context.drawImage(Img1, 0, 0, width, height);
-        context.drawImage(Img2, 0, k, width, width);
-		context.fillStyle = "#e85d17";
+        const photoId = msg.photo[msg.photo.length-1].file_id;
+        const width = msg.photo[msg.photo.length-1].width;
+        const height = msg.photo[msg.photo.length-1].height;
+        if(width/height > 1.2){
+            anonsInfo[`${chatId}`].image = await bot.getFile(photoId);
+            //const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${anonsInfo[`${chatId}`].image.file_path}`;
+            //const Img1 = await loadImage(FILE_PATH);
+            //bot.sendPhoto(chatId, Img1);
+            //anonsInfo.Img1 = await loadImage(FILE_PATH);
+            anonsInfo[`${chatId}`].photo = 1;
+            returnToMenu(chatId);
+            //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
+            /*const Img1 = await loadImage(FILE_PATH);
+            const Img2 = await loadImage(`src/public/logo/logo.png`);
+            const width = Img1.width;
+            const height = Img1.height;
+            const k = (height - width)+width*14/100;
+            const canvas = createCanvas(width, height+width*14/100);
+            const context = canvas.getContext('2d');
+            context.drawImage(Img1, 0, 0, width, height);
+            context.drawImage(Img2, 0, k, width, width);
+            context.fillStyle = "#e85d17";
 
-        context.font = `${width*koef/18}pt Ralev001`;
-		context.fillText(anonsInfo.title, 25, height-koef+width/10);
+            context.font = `${width*koef/18}pt Ralev001`;
+            context.fillText(anonsInfo.title, 25, height-koef+width/10);
 
-        context.fillStyle = "white";
-        context.font = `${width/17}pt Ralev001`;
-		context.fillText(anonsInfo.date, width/1.29, height+width*0.08);
+            context.fillStyle = "white";
+            context.font = `${width/17}pt Ralev001`;
+            context.fillText(anonsInfo.date, width/1.29, height+width*0.08);
 
-        const imgBuffer = canvas.toBuffer('image/jpeg');
-        anonsInfo.photo = `src/public/${image.file_path}`;
-		fs.writeFileSync(anonsInfo.photo, imgBuffer);
-        bot.sendMessage(chatId, success_mes);*/
+            const imgBuffer = canvas.toBuffer('image/jpeg');
+            anonsInfo.photo = `src/public/${image.file_path}`;
+            fs.writeFileSync(anonsInfo.photo, imgBuffer);
+            bot.sendMessage(chatId, success_mes);*/
+        }
+        else{
+            bot.sendMessage(chatId, `⛔️Вы загрузили "вертикальную" фотографию, она будет плохо смотреться в анонсе. Пожалуйста выберите в горизонтальном разширении🙏`, nextButton('Вернуться ⬅️'));
+        }
     }
 })
 
