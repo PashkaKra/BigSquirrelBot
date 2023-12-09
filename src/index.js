@@ -298,6 +298,7 @@ const anonsInfoInit = () => {
         time: "",
         location: "",
         locCoordinates: "",
+        linkedLocation: "",
         price: "Бесплатно",
         participants: "Без ограничений",
         link: "",
@@ -319,7 +320,7 @@ const getText = (chatId) => {
 🧑‍💼Организатор: @${anonsInfo[`${chatId}`].user} (${anonsInfo[`${chatId}`].username})</strong>
 
 ⏰ ${anonsInfo[`${chatId}`].time}
-📍 <a href="https://yandex.ru/maps/?pt=${anonsInfo[`${chatId}`].locCoordinates}&z=14&l=map">${anonsInfo[`${chatId}`].location}</a>
+📍 ${anonsInfo[`${chatId}`].linkedLocation}
 💸 ${anonsInfo[`${chatId}`].price}
 👥 ${anonsInfo[`${chatId}`].participants/*anonsInfo.level*/}` + br + br;
 
@@ -462,9 +463,21 @@ bot.on('message', async msg => {
     if(get_location_flag){
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].location = ' ✅';
-        
-        anonsInfo[`${chatId}`].locCoordinates = await getLocCoordinates(text);
-        
+        if(msg.entities){
+            if(msg.entities[0].type === 'url'){
+                anonsInfo[`${chatId}`].linkedLocation = `<a href="${text.substr(msg.entities[0].offset, msg.entities[0].length)}">${text.substr(0, msg.entities[0].offset)}</a>`;
+                console.log(anonsInfo[`${chatId}`].linkedLocation);
+            }
+            else if(msg.entities[0].type === 'text_link'){
+                anonsInfo[`${chatId}`].linkedLocation = `${text.substr(0, msg.entities[0].offset)}<a href="${msg.entities[0].url}">${text.substr(msg.entities[0].offset, msg.entities[0].length)}</a>${text.substr(msg.entities[0].offset+msg.entities[0].length, text.length-msg.entities[0].offset+msg.entities[0].length)}`;
+                console.log(anonsInfo[`${chatId}`].linkedLocation);
+            }
+            else{console.log(msg.entities);}
+        }
+        else{
+            anonsInfo[`${chatId}`].locCoordinates = await getLocCoordinates(text);
+            anonsInfo[`${chatId}`].linkedLocation = `<a href="https://yandex.ru/maps/?pt=${anonsInfo[`${chatId}`].locCoordinates}&z=14&l=map">${text}</a>`;
+        }
         anonsInfo[`${chatId}`].location = text;
         returnToMenu(chatId);
     }
