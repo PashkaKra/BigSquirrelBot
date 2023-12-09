@@ -460,15 +460,13 @@ bot.on('message', async msg => {
         //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_location_flag){
-        //get_location_flag = false;
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].location = ' ✅';
-        //console.log(msg);
+        
         anonsInfo[`${chatId}`].locCoordinates = await getLocCoordinates(text);
-        bot.sendMessage(chatId, anonsInfo[`${chatId}`].locLink);
+        
         anonsInfo[`${chatId}`].location = text;
         returnToMenu(chatId);
-        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_price_flag){
         //get_price_flag = false;
@@ -502,13 +500,10 @@ bot.on('message', async msg => {
 let Img;
 
 const getPhoto = async (chatId) => {
-    const koef = 1;
+    let koef = 1;
+    if(anonsInfo[`${chatId}`].title.length > 14 && anonsInfo[`${chatId}`].title.length < 29){koef = 1 - (anonsInfo[`${chatId}`].title.length-14)*0.0265;}
     const image = anonsInfo[`${chatId}`].image;
     FILE_PATH = TELEGRAM_LOCAL_SERVER === 'true' ? image.file_path : `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
-    //const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
-    //const FILE_PATH = `http://127.0.0.1:8081/file/bot${TOKEN}/${image.file_path}`;
-    //const FILE_PATH = `http://127.0.0.1:8081/tg-files/${TOKEN}/${image.file_path}`;
-    //const Img1 = await loadImage(FILE_PATH);
     const Img1 = await loadImage(FILE_PATH);
     const Img2 = await loadImage(`src/public/logo/logo.png`);
     const width = Img1.width;
@@ -530,7 +525,8 @@ const getPhoto = async (chatId) => {
     const imgBuffer = canvas.toBuffer('image/jpeg');
     //anonsInfo[`${chatId}`].photo = `src/public/${image.file_path}`;
     //anonsInfo[`${chatId}`].photo = `src/public/file_4`;
-    anonsInfo[`${chatId}`].photo = TELEGRAM_LOCAL_SERVER === 'true' ? image.file_path : `src/public/${image.file_path}`;
+    const EDITED_PHOTO = `${image.file_path.substr(0, image.file_path.length-4)}_edited${image.file_path.substr(-4, 4)}`;
+    anonsInfo[`${chatId}`].photo = TELEGRAM_LOCAL_SERVER === 'true' ?  EDITED_PHOTO : `src/public/${image.file_path}`;
 	fs.writeFileSync(anonsInfo[`${chatId}`].photo, imgBuffer);
 }
 
