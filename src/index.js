@@ -20,7 +20,6 @@ const THREAD_ID = process.env.THREAD_ID;
 
 const telegram_bot = () => TELEGRAM_LOCAL_SERVER === 'true' ? new TelegramApi(TOKEN, {polling: true, baseApiUrl: "http://127.0.0.1:8081"}) : new TelegramApi(TOKEN, {polling: true});
 const bot = telegram_bot();
-//const disk = new YandexDisk(YADLOGIN, YADPASSW);
 const app = express();
 
 app.get('/', function (req, res) {
@@ -30,10 +29,7 @@ app.get('/', function (req, res) {
 
 app.listen(PORT, () => console.log(`server started in potr: ${PORT}`));
 
-//const Img = 'https://www.yandex.ru/images/search?pos=0&from=tabbar&img_url=https%3A%2F%2Finfostart.ru%2Fupload%2Fiblock%2Ff0a%2Ff0a7a217efa125f37974167509cbc4cc.jpg&text=node-telegram-bot-api+%D0%BA%D0%B0%D0%BA+%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D1%82%D1%8C+%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8E+%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D1%83+%D0%BF%D0%BE+url+%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B5&rpt=simage&lr=10738';
-
 bot.setMyCommands([
-    //{command: '/start', description: 'start'},
     {command: '/get_action', description: 'Предложить анонс'}
 ]);
 
@@ -76,14 +72,6 @@ const getAction = async (title) => {
 
     return(tableActions.find((item) => item.patterns.test(title)));
 }
-
-let Rackets = [
-    {text: "Настольный теннис", teg: "#Настольныйтеннис", data: false}, {text: "Пинг-понг", teg: "#Настольныйтеннис", data: false},
-    {text: "Бадминтон", teg: "#Бадминтон", data: false}, {text: "Сквош", teg: "#Сквош", data: false},
-    {text: "Кроссминтон", teg: "#Бадминтон", data: false}, {text: "Пляжный теннис", teg: "#Теннис", data: false},
-    {text: "Большой теннис", teg: "#Теннис", data: false}, {text: "Падел-теннис", teg: "#Теннис", data: false},
-    {text: "Пиклбол", teg: "#Теннис", data: false}, {text: "Лапта", teg: "#Лапта", data: false}
-];
 
 const actionMenuInit = () => {
     return({
@@ -201,32 +189,6 @@ const setLevelState = () => {
 }*/
 //---------------------------------------------------------------------//
 
-const getRacketsMenu = () => {return ({
-    reply_markup: {
-        inline_keyboard: [
-            /*[{text: "Настольный теннис", callback_data: 'tableTennis'}, {text: 'Пинг-понг', callback_data: 'ping_pong'}],
-            [{text: 'Бадминтон', callback_data: 'badminton'}, {text: 'Сквош', callback_data: 'squash'}],
-            [{text: 'Кроссминтон', callback_data: 'crossminton'}, {text: 'Пляжный теннис', callback_data: 'beachTennis'}],
-            [{text: 'Большой теннис', callback_data: 'bigTennis'}, {text: 'Падел-теннис', callback_data: 'padel'}], 
-            [{text: 'Пиклбол', callback_data: 'picklball'}, {text: 'Лапта', callback_data: 'lapta'}],*/
-            [{text: Rackets[0].text, callback_data: 'tableTennis'}, {text: Rackets[1].text, callback_data: 'ping_pong'}],
-            [{text: Rackets[2].text, callback_data: 'badminton'}, {text: Rackets[3].text, callback_data: 'squash'}],
-            [{text: Rackets[4].text, callback_data: 'crossminton'}, {text: Rackets[5].text, callback_data: 'beachTennis'}],
-            [{text: Rackets[6].text, callback_data: 'bigTennis'}, {text: Rackets[7].text, callback_data: 'padel'}], 
-            [{text: Rackets[8].text, callback_data: 'picklball'}, {text: Rackets[9].text, callback_data: 'lapta'}],
-            [{text: 'Далее ➡️', callback_data: 'next'}],
-        ]
-    }
-})}
-
-/*const numberOfParticipants = {
-    reply_markup: {
-        inline_keyboard: [
-            [{text: '0 ', callback_data: 'tableTennis'}, {text: Rackets[1].text, callback_data: 'ping_pong'}],
-        ]
-    }
-}*/
-
 const nextButton = (title) => {
     return({
         reply_markup: {
@@ -255,39 +217,6 @@ const inWork = (chatId) => {
     });
 }
 
-const startMenu ={
-    reply_markup:{
-        keyboard: [
-            [{text: 'загрузите фотограию'}]
-        ]
-    }
-}
-
-const events_categories = {
-    reply_markup: {
-        keyboard: [
-            [{text: 'Ракетки'}, {text: 'Мяч'}, {text: 'Колёса'}],
-            [{text: 'Сёрф и сплавы'}, {text: 'Горнолыжка'}, {text: 'Походы'}],
-        ]
-    }
-}
-const rackets_categories = {
-    reply_markup: {
-        keyboard: [
-            [{text: 'Настольный теннис'}, {text: 'Пинг-понг'}, {text: 'Бадминтон'}, {text: 'Сквош'}],
-            [{text: 'Большой теннис'}, {text: 'Падел-теннис'}, {text: 'Кроссминтон'}],
-            [{text: 'Пляжный теннис'}, {text: 'Пиклбол'}, {text: 'Лапта'}],
-        ]
-    }
-}
-const ball_categories = {
-    reply_markup: {
-        keyboard: [
-            [{text: 'Волейбол'}, {text: 'Баскетбол'}, {text: 'Футбол'}],
-            [{text: 'Пляжный волейбол'}, {text: 'Гандбол'}]
-        ]
-    }
-}
 const anonsInfoInit = () => {
     return({
         title: "",
@@ -304,14 +233,12 @@ const anonsInfoInit = () => {
         link: "",
         chatTitle: "",
         categoryTeg: "",
-        //level: '',
         details: '',
         photo: '',
         image: '',
     });
 }
 
-//let anonsInfo = anonsInfoInit();
 let anonsInfo = new Array();
 const getText = (chatId) => {
     const NA_FANERE_BOT = "https://t.me/na_fanere_bot";
@@ -322,7 +249,7 @@ const getText = (chatId) => {
 ⏰ ${anonsInfo[`${chatId}`].time}
 📍 ${anonsInfo[`${chatId}`].linkedLocation}
 💸 ${anonsInfo[`${chatId}`].price}
-👥 ${anonsInfo[`${chatId}`].participants/*anonsInfo.level*/}` + br + br;
+👥 ${anonsInfo[`${chatId}`].participants}` + br + br;
 
     if(anonsInfo[`${chatId}`].details !== ""){announce += '➕' + anonsInfo[`${chatId}`].details + br + br;}
 
@@ -332,7 +259,6 @@ const getText = (chatId) => {
     return announce;   
 }
 
-let messId;
 let get_title_flag = false;
 let get_date_flag = false;
 let get_time_flag = false;
@@ -392,31 +318,16 @@ bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
     const text = msg.text;
- 
-    //const success_mes = `Информация успешно записана 🎉`;
-    console.log(msg);
-    
 
     if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
     if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
-    //bot.sendMessage(chatId, `result - ${tableActions[1].patterns.test(text)}`);
-    /*if(text === '/start'){
-        bot.sendMessage(chatId, 'Загрузите фотограию');
-    }*/
     if(text === '/get_action'){
-    //bot.on('/get_action', async msg => {
-    //    messId = msg.message_id;
-    //    console.log(`messageId is ${messId}`)
         anonsInfo[`${chatId}`] = anonsInfoInit();
         actionMenu[`${chatId}`] = actionMenuInit();
         bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'});
-        console.log(`message ${text}`);
-    //})
-         
     }
 
     if(get_title_flag){
-        //get_title_flag = false;
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].title = ' ✅';
         const action_data = await getAction(text);
@@ -431,11 +342,9 @@ bot.on('message', async msg => {
             anonsInfo[`${chatId}`].chatTitle = `🏄‍♂️ ФАНерный чат 🏂`;
             anonsInfo[`${chatId}`].categoryTeg = "";
         }
-        returnToMenu(chatId);
-        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));        
+        returnToMenu(chatId);       
     }
     if(get_date_flag){
-        //get_date_flag = false;
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].date = ' ✅';
         if(/(по|до|-)/.test(text)){
@@ -443,22 +352,18 @@ bot.on('message', async msg => {
             console.log(durDate[0]);
             console.log(durDate[1]);
             getDate(durDate[0], chatId);
-            //getDate(durDate[1]);
             getDate(durDate[2], chatId);
         }
         else{
             getDate(text, chatId);
         }
         returnToMenu(chatId);
-        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_time_flag){
-        //get_time_flag = false;
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].time = ' ✅';
         anonsInfo[`${chatId}`].time = text;
         returnToMenu(chatId);
-        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
     if(get_location_flag){
         bot.deleteMessage(chatId, msgId-1);
@@ -482,35 +387,26 @@ bot.on('message', async msg => {
         returnToMenu(chatId);
     }
     if(get_price_flag){
-        //get_price_flag = false;
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].price = ' ✅';
         text !== '0' ? anonsInfo[`${chatId}`].price = text : anonsInfo[`${chatId}`].price = "Бесплатно";
-        //bot.deleteMessage(chatId, msgId);
         returnToMenu(chatId);
-        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
 
     if(get_participants_flag){
-        //get_participants_flag = false;
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].participants = ' ✅';
         text !== '0' ? anonsInfo[`${chatId}`].participants = text : anonsInfo[`${chatId}`].participants = "Без ограничений";
         returnToMenu(chatId);
-        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
 
     if(details_flag){
-        //details_flag = false;
         bot.deleteMessage(chatId, msgId-1);
         actionMenu[`${chatId}`].details = ' ✅';
         anonsInfo[`${chatId}`].details = text;
         returnToMenu(chatId);
-        //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
     }
 });
-
-let Img;
 
 const getPhoto = async (chatId) => {
     let koef = 1;
@@ -536,8 +432,6 @@ const getPhoto = async (chatId) => {
 	context.fillText(anonsInfo[`${chatId}`].date, width/1.29, height+width*0.08);
 
     const imgBuffer = canvas.toBuffer('image/jpeg');
-    //anonsInfo[`${chatId}`].photo = `src/public/${image.file_path}`;
-    //anonsInfo[`${chatId}`].photo = `src/public/file_4`;
     const EDITED_PHOTO = `${image.file_path.substr(0, image.file_path.length-4)}_edited${image.file_path.substr(-4, 4)}`;
     anonsInfo[`${chatId}`].photo = TELEGRAM_LOCAL_SERVER === 'true' ?  EDITED_PHOTO : `src/public/${image.file_path}`;
 	fs.writeFileSync(anonsInfo[`${chatId}`].photo, imgBuffer);
@@ -546,52 +440,21 @@ const getPhoto = async (chatId) => {
 bot.on('photo', async msg => {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
-    console.log(msg);
     const success_mes = `Фотография успешно загружена 🎉`;
 
     if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
     if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
 
     if(photo_flag){
-        //photo_flag = false;
         bot.deleteMessage(chatId, msgId-1);
-        //const koef = 1;
-        
         const width = msg.photo[msg.photo.length-1].width;
         const height = msg.photo[msg.photo.length-1].height;
         if(width/height > 1.2){
             const photoId = msg.photo[msg.photo.length-1].file_id;
             actionMenu[`${chatId}`].photo = ' ✅';
             anonsInfo[`${chatId}`].image = await bot.getFile(photoId);
-            //const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${anonsInfo[`${chatId}`].image.file_path}`;
-            //const Img1 = await loadImage(FILE_PATH);
-            //bot.sendPhoto(chatId, Img1);
-            //anonsInfo.Img1 = await loadImage(FILE_PATH);
             anonsInfo[`${chatId}`].photo = 1;
             returnToMenu(chatId);
-            //bot.sendMessage(chatId, success_mes, nextButton('Далее ➡️'));
-            /*const Img1 = await loadImage(FILE_PATH);
-            const Img2 = await loadImage(`src/public/logo/logo.png`);
-            const width = Img1.width;
-            const height = Img1.height;
-            const k = (height - width)+width*14/100;
-            const canvas = createCanvas(width, height+width*14/100);
-            const context = canvas.getContext('2d');
-            context.drawImage(Img1, 0, 0, width, height);
-            context.drawImage(Img2, 0, k, width, width);
-            context.fillStyle = "#e85d17";
-
-            context.font = `${width*koef/18}pt Ralev001`;
-            context.fillText(anonsInfo.title, 25, height-koef+width/10);
-
-            context.fillStyle = "white";
-            context.font = `${width/17}pt Ralev001`;
-            context.fillText(anonsInfo.date, width/1.29, height+width*0.08);
-
-            const imgBuffer = canvas.toBuffer('image/jpeg');
-            anonsInfo.photo = `src/public/${image.file_path}`;
-            fs.writeFileSync(anonsInfo.photo, imgBuffer);
-            bot.sendMessage(chatId, success_mes);*/
         }
         else{
             bot.sendMessage(chatId, `⛔️Вы загрузили "вертикальную" фотографию, она будет плохо смотреться в анонсе. Пожалуйста выберите в горизонтальном разширении🙏`, nextButton('Вернуться ⬅️'));
@@ -616,32 +479,13 @@ bot.on('callback_query', async msg => {
 Формат фото: горизонтальное (При необходимости обрежьте поля)`;
     const sendMess = `📭 Анонс отправлен на модерацию, после одобрения он появится в нашем <a href="https://t.me/Na_Fanere">канале</a>.
 ❗️В случае возникновения вопросов, обращайтесь к @Katran1`;
-    console.log(msg);
+
     if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
     if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
     
     if(anonsInfo[`${chatId}`].user === "") {anonsInfo[`${chatId}`].user = msg.from.username;}
     if(anonsInfo[`${chatId}`].username === "") {anonsInfo[`${chatId}`].username = msg.from.first_name;}
-    //console.log(chrono.parseDate('An appointment on Sep 12-13'));
-    console.log(chrono.ru.parseDate('25.10.23')); 
-    console.log(chrono.ru.parseDate('c 25.10 по 23.11')); 
-    //console.log(msg);
-    //console.log(data);
-    switch(data.command){
-        /*case 'typeOfAction':
-            bot.deleteMessage(chatId, msgId);
-            bot.sendMessage(chatId, 'Выбирите вид спорта', getRacketsMenu());
-            break;
-        case 'tableTennis': changeActionState(chatId, msgId, 0, "Настольный теннис"); break;
-        case 'ping_pong': changeActionState(chatId, msgId, 1, "Пинг-понг"); break;
-        case 'badminton': changeActionState(chatId, msgId, 2, "Бадминтон"); break;
-        case 'squash': changeActionState(chatId, msgId, 3, "Сквош"); break;
-        case 'crossminton': changeActionState(chatId, msgId, 4, "Кроссминтон"); break;
-        case 'beachTennis': changeActionState(chatId, msgId, 5, "Пляжный теннис"); break;
-        case 'bigTennis': changeActionState(chatId, msgId, 6, "Большой теннис"); break;
-        case 'padel': changeActionState(chatId, msgId, 7, "Падел-теннис"); break;
-        case 'picklball': changeActionState(chatId, msgId, 8, "Пиклбол"); break;
-        case 'lapta': changeActionState(chatId, msgId, 9, "Лапта"); break;*/    
+    switch(data.command){   
         case 'next':
             bot.deleteMessage(chatId, msg.message.message_id);
             get_title_flag = false;
@@ -676,7 +520,6 @@ bot.on('callback_query', async msg => {
             bot.deleteMessage(chatId, msgId);
             bot.sendMessage(chatId, 'Укажите место проведения мероприятия', nextButton('Вернуться ⬅️'));
             get_location_flag = true;
-            //let lok = await yaLock();
             break;
         case 'priceOfAction': 
             bot.deleteMessage(chatId, msgId);
@@ -708,7 +551,6 @@ bot.on('callback_query', async msg => {
             bot.sendMessage(chatId, photoText, nextButton('Вернуться ⬅️'));
             break;
         case 'getPrevie':
-            //console.log(anonsInfo.photo);
             if(anonsInfo[`${chatId}`].photo !== ""  
             && anonsInfo[`${chatId}`].title !== ""
             && anonsInfo[`${chatId}`].date !== ""
@@ -737,46 +579,6 @@ bot.on('callback_query', async msg => {
             await bot.sendMessage(data.chatId, `💔Анонс не прошел модерацию. Просьба уточнить детали у @${msg.from.username}`);
         default:
             console.log("test");
-    //        bot.deleteMessage(chatId, )
+            break;
     }
-    //bot.sendMessage(chatId, data);
 });
-
-/*const getPhoto = () => {
-    bot.on('photo', async msg => {
-	    const chatId = msg.chat.id;
-	    const caption = msg.caption;
-        const photoId = msg.photo[msg.photo.length-1].file_id;
-        const image = await bot.getFile(photoId);
-	    const FILE_PATH = `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
-        //const Img1 = await loadImage(FILE_PATH);
-
-        bot.sendMessage(chatId, 'Выбирите категорию мероприятия:', events_categories);
-        bot.on('message', async msg => {
-            const CHAT_TITLE = msg.text;
-            let event_category;
-            let chatLink;
-            switch(CHAT_TITLE){
-                case 'Ракетки':
-                    event_category = rackets_categories;
-                    chatLink = 'https://t.me/+6IclAEAzk_c0NTZi';
-                    break;
-                case 'Мяч':
-                    event_category = ball_categories;
-                    chatLink = 'https://t.me/+jrN8B0CLicthNzM6';
-                    break;
-            }
-            bot.sendMessage(chatId, 'Выбирите мероприятие:', event_category);
-            console.log(FILE_PATH);
-            bot.on('message', async msg => {
-                const text = msg.text;
-                const user = msg.from.username;
-                console.log(msg);
-                let teg = getTeg(text);
-                bot.on('message', async msg => {
-                    await bot.sendPhoto(chatId, Img, {caption: getText(text, CHAT_TITLE, chatLink, user, teg), parse_mode: 'HTML'});
-                });
-            });
-        });
-    });
-}*/
