@@ -14,11 +14,12 @@ dotenv.config();
 const TOKEN = process.env.TOKEN;
 const YAKEY = process.env.YAKEY;
 const PORT = process.env.PORT;
-const TELEGRAM_LOCAL_SERVER = process.env.TELEGRAM_LOCAL_SERVER;
+const TELEGRAM_LOCAL_SERVER = process.env.TELEGRAM_LOCAL_SERVER === 'true' ? true : false;
+const CHANNEL_ID = process.env.CHANNEL_ID;
 const CHAT_ID = process.env.CHAT_ID;
 const THREAD_ID = process.env.THREAD_ID;
 
-const telegram_bot = () => TELEGRAM_LOCAL_SERVER === 'true' ? new TelegramApi(TOKEN, {polling: true, baseApiUrl: "http://127.0.0.1:8081"}) : new TelegramApi(TOKEN, {polling: true});
+const telegram_bot = () => TELEGRAM_LOCAL_SERVER ? new TelegramApi(TOKEN, {polling: true, baseApiUrl: "http://127.0.0.1:8081"}) : new TelegramApi(TOKEN, {polling: true});
 const bot = telegram_bot();
 const app = express();
 
@@ -29,11 +30,10 @@ app.get('/', function (req, res) {
 
 app.listen(PORT, () => console.log(`server started in potr: ${PORT}`));
 
+/*
 bot.setMyCommands([
     {command: '/get_action', description: 'Предложить анонс'}
-]);
-
-let table = false;
+]);*/
 
 const getAction = async (title) => {
     //const tableAddr = '/home/PashkaKra/Документы/WebProj/BigSquirrelBot/actionsTable.xlsx';
@@ -294,6 +294,17 @@ const countDigits = n => {
     anonsInfo[`${chatId}`].day = day_arr[day];
  }
 
+ const checkMember = userId => {
+    const message = `Эта фишечка доступна участникам сообщества\
+ "На ФАНере" <a href="https://t.me/Na_Fanere">подпишитесь</a>💛 Это даст Вам возможность следить\
+ за нужными событиями и обновлениями`;
+    if(bot.getChatMember(CHANNEL_ID, userId)) return true;
+    else{
+        bot.sendMessage(userId, message, {parse_mode: 'HTML'});
+        return false;
+    }
+ }
+
  const startText = `
  🔖 <strong>Заполните короткий шаблон, чтобы получился красивый анонс</strong>
  ❗️Поля, отмеченные «*» обязательны для заполнения
@@ -316,12 +327,14 @@ const returnToMenu = (chatId) => {
 
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
+    const userId = msg.from.id;
     const msgId = msg.message_id;
     const text = msg.text;
+    console.log(msg);
 
     if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
     if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
-    if(text === '/get_action'){
+    if(text === '#предложить_анонс' && checkMember(userId)){
         anonsInfo[`${chatId}`] = anonsInfoInit();
         actionMenu[`${chatId}`] = actionMenuInit();
         bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'});
@@ -412,7 +425,7 @@ const getPhoto = async (chatId) => {
     let koef = 1;
     if(anonsInfo[`${chatId}`].title.length > 14 && anonsInfo[`${chatId}`].title.length < 29){koef = 1 - (anonsInfo[`${chatId}`].title.length-14)*0.0265;}
     const image = anonsInfo[`${chatId}`].image;
-    FILE_PATH = TELEGRAM_LOCAL_SERVER === 'true' ? image.file_path : `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
+    FILE_PATH = TELEGRAM_LOCAL_SERVER ? image.file_path : `https://api.telegram.org/file/bot${TOKEN}/${image.file_path}`;
     const Img1 = await loadImage(FILE_PATH);
     const Img2 = await loadImage(`src/public/logo/logo.png`);
     const width = Img1.width;
@@ -433,7 +446,7 @@ const getPhoto = async (chatId) => {
 
     const imgBuffer = canvas.toBuffer('image/jpeg');
     const EDITED_PHOTO = `${image.file_path.substr(0, image.file_path.length-4)}_edited${image.file_path.substr(-4, 4)}`;
-    anonsInfo[`${chatId}`].photo = TELEGRAM_LOCAL_SERVER === 'true' ?  EDITED_PHOTO : `src/public/${image.file_path}`;
+    anonsInfo[`${chatId}`].photo = TELEGRAM_LOCAL_SERVER ?  EDITED_PHOTO : `src/public/${image.file_path}`;
 	fs.writeFileSync(anonsInfo[`${chatId}`].photo, imgBuffer);
 }
 
@@ -473,13 +486,13 @@ let dataId;
      
 bot.on('callback_query', async msg => {
     const chatId = msg.message.chat.id;
+    const userId = msg.from.id;
     const msgId = msg.message.message_id;
     const data = JSON.parse(msg.data);
     const photoText = `🖼 Загрузите фотографию для абложки анонса.
 Формат фото: горизонтальное (При необходимости обрежьте поля)`;
     const sendMess = `📭 Анонс отправлен на модерацию, после одобрения он появится в нашем <a href="https://t.me/Na_Fanere">канале</a>.
 ❗️В случае возникновения вопросов, обращайтесь к @Katran1`;
-
     if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
     if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
     
@@ -551,24 +564,27 @@ bot.on('callback_query', async msg => {
             bot.sendMessage(chatId, photoText, nextButton('Вернуться ⬅️'));
             break;
         case 'getPrevie':
-            if(anonsInfo[`${chatId}`].photo !== ""  
-            && anonsInfo[`${chatId}`].title !== ""
-            && anonsInfo[`${chatId}`].date !== ""
-            && anonsInfo[`${chatId}`].time !== ""
-            && anonsInfo[`${chatId}`].location !== ""){
-                bot.deleteMessage(chatId, msgId);
-                await getPhoto(chatId);
-                await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), parse_mode: 'HTML'});
-                await bot.sendMessage(chatId, "Отправьте анонс на модерацию или продолжите редактирование", previewMenu);
-            }
-            else{
-                bot.sendMessage(chatId, `Заполнены не все обязательные поля!`);
+            if(checkMember(userId)){
+                if(anonsInfo[`${chatId}`].photo !== ""  
+                && anonsInfo[`${chatId}`].title !== ""
+                && anonsInfo[`${chatId}`].date !== ""
+                && anonsInfo[`${chatId}`].time !== ""
+                && anonsInfo[`${chatId}`].location !== ""){
+                    bot.deleteMessage(chatId, msgId);
+                    await getPhoto(chatId);
+                    await bot.sendPhoto(chatId, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), parse_mode: 'HTML'});
+                    await bot.sendMessage(chatId, "Отправьте анонс на модерацию или продолжите редактирование", previewMenu);
+                }
+                else{
+                    bot.sendMessage(chatId, `Заполнены не все обязательные поля!`);
+                }
             }
             break;
         case 'send':
-            console.log(anonsInfo[`${chatId}`].photo);
-            await bot.sendPhoto(CHAT_ID, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), reply_markup: inWork(chatId), parse_mode: 'HTML', message_thread_id: THREAD_ID});
-            await bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
+            if(checkMember(userId)){
+                await bot.sendPhoto(CHAT_ID, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), reply_markup: inWork(chatId), parse_mode: 'HTML', message_thread_id: THREAD_ID});
+                await bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
+            }
             break;
         case 'accept':
             await bot.sendMessage(CHAT_ID, `Анонс обработан @${msg.from.username}`, {message_thread_id: THREAD_ID, reply_to_message_id: msgId});
