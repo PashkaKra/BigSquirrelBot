@@ -475,7 +475,8 @@ const getPhoto = async (chatId) => {
 	context.fillText(anonsInfo[`${chatId}`].date, width/1.29, height+width*0.08);
 
     const imgBuffer = canvas.toBuffer('image/jpeg');
-    const EDITED_PHOTO = `${image.file_path.substr(0, image.file_path.length-4)}_edited${image.file_path.substr(-4, 4)}`;
+    //const EDITED_PHOTO = `${image.file_path.substr(0, image.file_path.length-4)}_edited${image.file_path.substr(-4, 4)}`;
+    const EDITED_PHOTO = image.file_path.split(`/home/telegram/tg-files/${TOKEN}`).join('src/public');
     anonsInfo[`${chatId}`].photo = TELEGRAM_LOCAL_SERVER ?  EDITED_PHOTO : `src/public/${image.file_path}`;
 	fs.writeFileSync(anonsInfo[`${chatId}`].photo, imgBuffer);
 }
