@@ -309,10 +309,9 @@ const countDigits = n => {
     const message = `Эта фишечка доступна участникам сообщества\
  "На ФАНере" <a href="https://t.me/Na_Fanere">подпишитесь</a>💛 Это даст Вам возможность следить\
  за нужными событиями и обновлениями`;
-    bot.getChatMember(CHANNEL_ID, userId/*"482338746"*/)
+    bot.getChatMember(CHANNEL_ID, userId)
         .then(response => {
             if(response.status === 'member' || response.status === 'administrator' || response.status === 'creator'){
-                //bot.sendMessage(userId, startText, {reply_markup: getActionMenu(userId), parse_mode: 'HTML'});
                 action();
             }
             else{
