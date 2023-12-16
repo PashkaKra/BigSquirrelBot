@@ -305,17 +305,24 @@ const countDigits = n => {
     anonsInfo[`${chatId}`].day = day_arr[day];
  }
 
- const checkMember = async (userId) => {
+ const checkMember = (userId, action) => {
     const message = `Эта фишечка доступна участникам сообщества\
  "На ФАНере" <a href="https://t.me/Na_Fanere">подпишитесь</a>💛 Это даст Вам возможность следить\
  за нужными событиями и обновлениями`;
-        const member = await bot.getChatMember(CHANNEL_ID, userId);
-    if(member.status){
-        bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(userId), parse_mode: 'HTML'});
-    }
-    else{
-        bot.sendMessage(userId, message, {parse_mode: 'HTML'});
-    }
+    bot.getChatMember(CHANNEL_ID, userId/*"482338746"*/)
+        .then(response => {
+            if(response.status === 'member' || response.status === 'administrator' || response.status === 'creator'){
+                //bot.sendMessage(userId, startText, {reply_markup: getActionMenu(userId), parse_mode: 'HTML'});
+                action();
+            }
+            else{
+                bot.sendMessage(userId, message, {parse_mode: 'HTML'});
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            bot.sendMessage(userId, message, {parse_mode: 'HTML'});
+        });
  }
 
  const startText = `
@@ -359,8 +366,7 @@ bot.on('message', async msg => {
         if(text === '#предложить_анонс'){
             anonsInfo[`${chatId}`] = anonsInfoInit();
             actionMenu[`${chatId}`] = actionMenuInit();
-            checkMember(userId);
-            //bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'});
+            checkMember(userId, async () => await bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'}));
         }
 
         if(access_flag.title[`${chatId}`]){
@@ -593,7 +599,7 @@ bot.on('callback_query', async msg => {
                 bot.sendMessage(chatId, photoText, nextButton('Вернуться ⬅️'));
                 break;
             case 'getPrevie':
-                if(checkMember(userId)){
+                checkMember(userId, async () => {
                     if(anonsInfo[`${chatId}`].photo !== ""  
                     && anonsInfo[`${chatId}`].title !== ""
                     && anonsInfo[`${chatId}`].date !== ""
@@ -607,13 +613,13 @@ bot.on('callback_query', async msg => {
                     else{
                         bot.sendMessage(chatId, `Заполнены не все обязательные поля!`);
                     }
-                }
+                });
                 break;
             case 'send':
-                if(checkMember(userId)){
+                checkMember(userId, async () => {
                     await bot.sendPhoto(CHAT_ID, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), reply_markup: inWork(chatId), parse_mode: 'HTML', message_thread_id: THREAD_ID});
                     await bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
-                }
+                });
                 break;
             case 'accept':
                 await bot.sendMessage(CHAT_ID, `Анонс обработан @${msg.from.username}`, {message_thread_id: THREAD_ID, reply_to_message_id: msgId});
