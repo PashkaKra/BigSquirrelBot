@@ -536,14 +536,14 @@ bot.on('callback_query', async msg => {
         switch(data.command){   
             case 'next':
                 bot.deleteMessage(chatId, msg.message.message_id);
-                /*get_title_flag = false;
-                get_date_flag = false;
-                get_time_flag = false;
-                get_location_flag = false;
-                get_price_flag = false;
-                get_participants_flag = false;
-                details_flag = false;
-                photo_flag = false;*/
+                access_flag.title[`${chatId}`] = false;
+                access_flag.date[`${chatId}`] = false;
+                access_flag.time[`${chatId}`] = false;
+                access_flag.location[`${chatId}`] = false;
+                access_flag.price[`${chatId}`] = false;
+                access_flag.participants[`${chatId}`] = false;
+                access_flag.details[`${chatId}`] = false;
+                access_flag.photo[`${chatId}`] = false;
                 //actionMenu.title = anonsInfo.title ? ' ✅' : '';
                 //actionMenu.photo = anonsInfo.photo ? ' ✅' : '';
                 bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'});
