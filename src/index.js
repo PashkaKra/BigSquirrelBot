@@ -521,9 +521,9 @@ let dataId;
 bot.on('callback_query', async msg => {
     const chatId = msg.message.chat.id;
     const userId = msg.from.id;
-    if(chatId === userId || chatId === CHAT_ID){
-        const msgId = msg.message.message_id;
-        const data = JSON.parse(msg.data);
+    const data = JSON.parse(msg.data);
+    const msgId = msg.message.message_id;
+    if(chatId === userId){
         const photoText = `🖼 Загрузите фотографию для абложки анонса.
 Формат фото: горизонтальное (При необходимости обрежьте поля)`;
         const sendMess = `📭 Анонс отправлен на модерацию, после одобрения он появится в нашем <a href="https://t.me/Na_Fanere">канале</a>.
@@ -621,6 +621,12 @@ bot.on('callback_query', async msg => {
                     await bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
                 });
                 break;
+            default:
+                console.log(false1);
+                break;
+        }
+    }
+    switch(data.command){
             case 'accept':
                 await bot.sendMessage(CHAT_ID, `Анонс обработан @${msg.from.username}`, {message_thread_id: THREAD_ID, reply_to_message_id: msgId});
                 await bot.sendMessage(data.chatId, `💛Анонс прошел модерацию и запланирован в канал @na_fanere`);
@@ -632,6 +638,6 @@ bot.on('callback_query', async msg => {
                 console.log("test");
                 break;
         }
-    }
+   //}
     
 });
