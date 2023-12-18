@@ -355,14 +355,14 @@ const returnToMenu = (chatId) => {
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const userId = msg.from.id;
-    if(chatId === userId){
+    //if(chatId === userId){
         const msgId = msg.message_id;
         const text = msg.text;
         console.log(msg);
 
         if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
         if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
-        if(text === '#предложить_анонс'){
+        if(text === '📝  #Создать_анонс'){
             anonsInfo[`${chatId}`] = anonsInfoInit();
             actionMenu[`${chatId}`] = actionMenuInit();
             checkMember(userId, async () => await bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'}));
@@ -447,7 +447,7 @@ bot.on('message', async msg => {
             anonsInfo[`${chatId}`].details = text;
             returnToMenu(chatId);
         } 
-    }
+    //}
 
 });
 
@@ -533,7 +533,12 @@ bot.on('callback_query', async msg => {
         
         if(anonsInfo[`${chatId}`].user === "") {anonsInfo[`${chatId}`].user = msg.from.username;}
         if(anonsInfo[`${chatId}`].username === "") {anonsInfo[`${chatId}`].username = msg.from.first_name;}
-        switch(data.command){   
+        switch(data.command){
+            case '2/cmd/announce_create':
+                anonsInfo[`${chatId}`] = anonsInfoInit();
+                actionMenu[`${chatId}`] = actionMenuInit();
+                checkMember(userId, async () => await bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'}));
+                break;
             case 'next':
                 bot.deleteMessage(chatId, msg.message.message_id);
                 access_flag.title[`${chatId}`] = false;
