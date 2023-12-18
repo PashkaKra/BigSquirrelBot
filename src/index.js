@@ -355,7 +355,7 @@ const returnToMenu = (chatId) => {
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const userId = msg.from.id;
-    //if(chatId === userId){
+    if(chatId === userId){
         const msgId = msg.message_id;
         const text = msg.text;
         console.log(msg);
@@ -447,7 +447,7 @@ bot.on('message', async msg => {
             anonsInfo[`${chatId}`].details = text;
             returnToMenu(chatId);
         } 
-    //}
+    }
 
 });
 
