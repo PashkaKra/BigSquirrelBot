@@ -222,8 +222,9 @@ const anonsInfoInit = () => {
         title: "",
         user: "",
         username: "",
-        date: "",
-        day: "",
+        date: [],
+        date_sep: "",
+        day: [],
         time: "",
         location: "",
         locCoordinates: "",
@@ -242,7 +243,9 @@ const anonsInfoInit = () => {
 let anonsInfo = new Array();
 const getText = (chatId) => {
     const NA_FANERE_BOT = "https://t.me/na_fanere_bot";
-    let announce = `<strong>${anonsInfo[`${chatId}`].date} (${anonsInfo[`${chatId}`].day}) - ${anonsInfo[`${chatId}`].title}
+    const DATE = anonsInfo[`${chatId}`].date.length === 1 ? `${anonsInfo[`${chatId}`].date[0]} (${anonsInfo[`${chatId}`].day[0]})` : `${anonsInfo[`${chatId}`].date[0]} ${anonsInfo[`${chatId}`].date_sep} ${anonsInfo[`${chatId}`].date[1]}`;
+    //let announce = `<strong>${anonsInfo[`${chatId}`].date} (${anonsInfo[`${chatId}`].day}) - ${anonsInfo[`${chatId}`].title}
+    let announce = `<strong>${DATE} - ${anonsInfo[`${chatId}`].title}
 
 🧑‍💼Организатор: @${anonsInfo[`${chatId}`].user} (${anonsInfo[`${chatId}`].username})</strong>
 
@@ -270,15 +273,6 @@ const access_flag = {
     photo: [],
 }
 
-/*let get_title_flag = false;
-let get_date_flag = false;
-let get_time_flag = false;
-let get_location_flag = false;
-let get_price_flag = false;
-let get_participants_flag = false;
-let details_flag = false;
-let photo_flag = false;*/
-
 const day_arr = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
 
 const countDigits = n => {
@@ -288,10 +282,10 @@ const countDigits = n => {
     return i;
  }
 
- const getDate = (text, chatId) => {
+ const getDate = (text, chatId, i) => {
     let day;
     if(/(\d{2}.\d{2})/.test(text) && !(/(\d{2}\.\d{2}\.\d{2,4})/.test(text))){
-        anonsInfo[`${chatId}`].date = text;
+        nonsInfo[`${chatId}`].datea[i] = text;
         day = new Date(chrono.ru.parseDate(text + `.${new Date().getFullYear()}`)).getDay();
     }
     else{
@@ -299,10 +293,9 @@ const countDigits = n => {
         day = date.getDay();
         const date_zerro = countDigits(date.getDate()) === 2? "" : 0;
         const month_zerro = countDigits(date.getMonth() + 1) === 2? "" : 0;
-        anonsInfo[`${chatId}`].date = `${date_zerro}${date.getDate()}.${month_zerro}${date.getMonth() + 1}`;
-        console.log(anonsInfo[`${chatId}`].date);
+        anonsInfo[`${chatId}`].date[i] = `${date_zerro}${date.getDate()}.${month_zerro}${date.getMonth() + 1}`;
     }
-    anonsInfo[`${chatId}`].day = day_arr[day];
+    anonsInfo[`${chatId}`].day[i] = day_arr[day];
  }
 
  const checkMember = (userId, action) => {
@@ -340,14 +333,6 @@ const returnToMenu = (chatId) => {
     access_flag.participants[`${chatId}`] = false;
     access_flag.details[`${chatId}`] = false;
     access_flag.photo[`${chatId}`] = false;
-    /*get_title_flag = false;
-    get_date_flag = false;
-    get_time_flag = false;
-    get_location_flag = false;
-    get_price_flag = false;
-    get_participants_flag = false;
-    details_flag = false;
-    photo_flag = false;*/
     bot.sendMessage(chatId, success_mes);
     bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'});
 }
@@ -388,15 +373,22 @@ bot.on('message', async msg => {
         if(access_flag.date[`${chatId}`]){
             bot.deleteMessage(chatId, msgId-1);
             actionMenu[`${chatId}`].date = ' ✅';
-            if(/(по|до|-)/.test(text)){
-                let durDate = text.split(/(по|до|-)/);
-                console.log(durDate[0]);
-                console.log(durDate[1]);
-                getDate(durDate[0], chatId);
-                getDate(durDate[2], chatId);
+            anonsInfo[`${chatId}`].date = [];
+            anonsInfo[`${chatId}`].date_sep = "";
+            if(/( по | до |-)/.test(text)){
+                let durDate = text.split(/( по | до |-)/);
+                getDate(durDate[0], chatId, 0);
+                getDate(durDate[2], chatId, 1);
+                anonsInfo[`${chatId}`].date_sep = '-';
+            }
+            else if(/( и |&|,)/.test(text)){
+                let durDate = text.split(/( и |&|,)/);
+                getDate(durDate[0], chatId, 0);
+                getDate(durDate[2], chatId, 1);
+                anonsInfo[`${chatId}`].date_sep = 'и';
             }
             else{
-                getDate(text, chatId);
+                getDate(text, chatId, 0);
             }
             returnToMenu(chatId);
         }
@@ -471,8 +463,21 @@ const getPhoto = async (chatId) => {
 	context.fillText(anonsInfo[`${chatId}`].title, 25, height-koef+width/10);
 
     context.fillStyle = "white";
-    context.font = `${width/17}pt Ralev001`;
-	context.fillText(anonsInfo[`${chatId}`].date, width/1.29, height+width*0.08);
+    if(anonsInfo[`${chatId}`].date_sep === ""){
+        context.font = `${width/17}pt Ralev001`;
+	    context.fillText(anonsInfo[`${chatId}`].date[0], width/1.29, height+width*0.08);
+    }
+    else{
+        context.font = `${width/20}pt Ralev001`;
+		context.fillText(anonsInfo[`${chatId}`].date[0], width/1.24, height+width*0.03);
+		context.fillText(anonsInfo[`${chatId}`].date[1], width/1.24, height+width*0.105);
+		if(anonsInfo[`${chatId}`].date_sep === 'и'){
+			context.fillText('и', width/1.31, height+width*0.06);
+		}
+		else{
+			context.fillText('[', width/1.29, height+width*0.06);
+		}
+	}
 
     const imgBuffer = canvas.toBuffer('image/jpeg');
     //const EDITED_PHOTO = `${image.file_path.substr(0, image.file_path.length-4)}_edited${image.file_path.substr(-4, 4)}`;
@@ -642,7 +647,5 @@ bot.on('callback_query', async msg => {
             default:
                 console.log("test");
                 break;
-        }
-   //}
-    
+        }    
 });
