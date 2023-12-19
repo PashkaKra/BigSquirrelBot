@@ -244,7 +244,6 @@ let anonsInfo = new Array();
 const getText = (chatId) => {
     const NA_FANERE_BOT = "https://t.me/na_fanere_bot";
     const DATE = anonsInfo[`${chatId}`].date.length === 1 ? `${anonsInfo[`${chatId}`].date[0]} (${anonsInfo[`${chatId}`].day[0]})` : `${anonsInfo[`${chatId}`].date[0]} ${anonsInfo[`${chatId}`].date_sep} ${anonsInfo[`${chatId}`].date[1]}`;
-    //let announce = `<strong>${anonsInfo[`${chatId}`].date} (${anonsInfo[`${chatId}`].day}) - ${anonsInfo[`${chatId}`].title}
     let announce = `<strong>${DATE} - ${anonsInfo[`${chatId}`].title}
 
 🧑‍💼Организатор: @${anonsInfo[`${chatId}`].user} (${anonsInfo[`${chatId}`].username})</strong>
@@ -300,9 +299,9 @@ const countDigits = n => {
 
  const checkMember = (userId, action) => {
     const message = `Эта фишечка доступна участникам сообщества\
- "На ФАНере" <a href="https://t.me/Na_Fanere">подпишитесь</a>💛 Это даст Вам возможность следить\
+ "На ФАНере" <a href="https://t.me/${CHANNEL_ID}">подпишитесь</a>💛 Это даст Вам возможность следить\
  за нужными событиями и обновлениями`;
-    bot.getChatMember(CHANNEL_ID, userId)
+    bot.getChatMember('@'+CHANNEL_ID, userId)
         .then(response => {
             if(response.status === 'member' || response.status === 'administrator' || response.status === 'creator'){
                 action();
@@ -480,7 +479,6 @@ const getPhoto = async (chatId) => {
 	}
 
     const imgBuffer = canvas.toBuffer('image/jpeg');
-    //const EDITED_PHOTO = `${image.file_path.substr(0, image.file_path.length-4)}_edited${image.file_path.substr(-4, 4)}`;
     const EDITED_PHOTO = image.file_path.split(`/home/telegram/tg-files/${TOKEN}`).join('src/public');
     anonsInfo[`${chatId}`].photo = TELEGRAM_LOCAL_SERVER ?  EDITED_PHOTO : `src/public/${image.file_path}`;
 	fs.writeFileSync(anonsInfo[`${chatId}`].photo, imgBuffer);
