@@ -284,7 +284,7 @@ const countDigits = n => {
  const getDate = (text, chatId, i) => {
     let day;
     if(/(\d{2}.\d{2})/.test(text) && !(/(\d{2}\.\d{2}\.\d{2,4})/.test(text))){
-        nonsInfo[`${chatId}`].datea[i] = text;
+        anonsInfo[`${chatId}`].date[i] = text;
         day = new Date(chrono.ru.parseDate(text + `.${new Date().getFullYear()}`)).getDay();
     }
     else{
