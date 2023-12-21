@@ -255,8 +255,8 @@ const getText = (chatId) => {
 
     if(anonsInfo[`${chatId}`].details !== ""){announce += '➕' + anonsInfo[`${chatId}`].details + br + br;}
 
-    announce += `⭐️Чат: <a href="${anonsInfo[`${chatId}`].link}">${anonsInfo[`${chatId}`].chatTitle}</a>
-    🎁 <a href="${NA_FANERE_BOT}">Подпишись на обновление</a> 🎁`;
+    announce += `📝Общение: <a href="${anonsInfo[`${chatId}`].link}">${anonsInfo[`${chatId}`].chatTitle}</a>
+🎁 <a href="${NA_FANERE_BOT}">Подпишись на обновление</a> 🎁`;
 
     if(anonsInfo[`${chatId}`].categoryTeg !== ""){announce += br + anonsInfo[`${chatId}`].categoryTeg;}
     return announce;   
