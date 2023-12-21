@@ -255,7 +255,8 @@ const getText = (chatId) => {
 
     if(anonsInfo[`${chatId}`].details !== ""){announce += '➕' + anonsInfo[`${chatId}`].details + br + br;}
 
-    announce += `⭐️Чат: <a href="${anonsInfo[`${chatId}`].link}">${anonsInfo[`${chatId}`].chatTitle}</a> | <a href="${NA_FANERE_BOT}">Бот уведомления</a>`;
+    announce += `⭐️Чат: <a href="${anonsInfo[`${chatId}`].link}">${anonsInfo[`${chatId}`].chatTitle}</a>
+<a href="${NA_FANERE_BOT}">🎁 Подпишись на обновление 🎁</a>`;
 
     if(anonsInfo[`${chatId}`].categoryTeg !== ""){announce += br + anonsInfo[`${chatId}`].categoryTeg;}
     return announce;   
@@ -346,7 +347,7 @@ bot.on('message', async msg => {
 
         if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
         if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
-        if(text === '📝  #Создать_анонс'/* || text === "/get_action"*/){
+        if(text === '📝 #Создать_анонс'/* || text === "/get_action"*/){
             anonsInfo[`${chatId}`] = anonsInfoInit();
             actionMenu[`${chatId}`] = actionMenuInit();
             checkMember(userId, async () => await bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'}));
