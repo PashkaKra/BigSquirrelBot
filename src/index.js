@@ -346,7 +346,7 @@ bot.on('message', async msg => {
 
         if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
         if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
-        if(text === '📝  #Создать_анонс'){
+        if(text === '📝  #Создать_анонс'/* || text === "/get_action"*/){
             anonsInfo[`${chatId}`] = anonsInfoInit();
             actionMenu[`${chatId}`] = actionMenuInit();
             checkMember(userId, async () => await bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'}));
@@ -413,7 +413,12 @@ bot.on('message', async msg => {
             }
             else{
                 anonsInfo[`${chatId}`].locCoordinates = await getLocCoordinates(text);
-                anonsInfo[`${chatId}`].linkedLocation = `<a href="https://yandex.ru/maps/?pt=${anonsInfo[`${chatId}`].locCoordinates}&z=14&l=map">${text}</a>`;
+                if(anonsInfo[`${chatId}`].locCoordinates){
+                    anonsInfo[`${chatId}`].linkedLocation = `<a href="https://yandex.ru/maps/?pt=${anonsInfo[`${chatId}`].locCoordinates}&z=14&l=map">${text}</a>`;
+                }
+                else{
+                    anonsInfo[`${chatId}`].linkedLocation = text;
+                }
             }
             anonsInfo[`${chatId}`].location = text;
             returnToMenu(chatId);
@@ -515,8 +520,11 @@ bot.on('photo', async msg => {
 const getLocCoordinates = async (adr) => {
     const res = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${YAKEY}&geocode=${adr.replace(" ", "+")}&format=json`);
     const data = await res.json();
-    coord = data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos.replace(" ", ",");
-    return coord;
+    if(data.response.GeoObjectCollection.featureMember[0]){
+        const coord = data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos.replace(" ", ",");
+        return coord;
+    }
+    else return false;
 }
 
 let dataId;
