@@ -634,8 +634,14 @@ bot.on('callback_query', async msg => {
                 break;
             case 'send':
                 checkMember(userId, async () => {
-                    await bot.sendPhoto(CHAT_ID, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), reply_markup: inWork(chatId), parse_mode: 'HTML', message_thread_id: THREAD_ID});
-                    await bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
+                    try{
+                        await bot.sendPhoto(CHAT_ID, fs.readFileSync(anonsInfo[`${chatId}`].photo), {caption: await getText(chatId), reply_markup: inWork(chatId), parse_mode: 'HTML', message_thread_id: THREAD_ID});
+                        await bot.sendMessage(chatId, sendMess, {parse_mode: 'HTML'});
+                    }
+                    catch(err){
+                        bot.sendMessage(chatId, "⚠️Ой, что-то пошло не так. Напишите пожалуйста @katran1");
+                        console.log(err);
+                    }
                 });
                 break;
             default:
