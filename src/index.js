@@ -30,10 +30,10 @@ app.get('/', function (req, res) {
 
 app.listen(PORT, () => console.log(`server started in potr: ${PORT}`));
 
-
+*/
 bot.setMyCommands([
     {command: '/get_action', description: 'Предложить анонс'}
-]);*/
+]);
 
 const getAction = async (title) => {
     //const tableAddr = '/home/PashkaKra/Документы/WebProj/BigSquirrelBot/actionsTable.xlsx';
@@ -287,15 +287,24 @@ const countDigits = n => {
     if(/(\d{2}.\d{2})/.test(text) && !(/(\d{2}\.\d{2}\.\d{2,4})/.test(text))){
         anonsInfo[`${chatId}`].date[i] = text;
         day = new Date(chrono.ru.parseDate(text + `.${new Date().getFullYear()}`)).getDay();
+        anonsInfo[`${chatId}`].day[i] = day_arr[day];
+        return true;
     }
     else{
         const date = new Date(chrono.ru.parseDate(text));
-        day = date.getDay();
-        const date_zerro = countDigits(date.getDate()) === 2? "" : 0;
-        const month_zerro = countDigits(date.getMonth() + 1) === 2? "" : 0;
-        anonsInfo[`${chatId}`].date[i] = `${date_zerro}${date.getDate()}.${month_zerro}${date.getMonth() + 1}`;
+        if(date.getFullYear() !== 1970){
+            day = date.getDay();
+            const date_zerro = countDigits(date.getDate()) === 2? "" : 0;
+            const month_zerro = countDigits(date.getMonth() + 1) === 2? "" : 0;
+            anonsInfo[`${chatId}`].date[i] = `${date_zerro}${date.getDate()}.${month_zerro}${date.getMonth() + 1}`;
+            anonsInfo[`${chatId}`].day[i] = day_arr[day];
+            return true;
+        }
+        else{
+            bot.sendMessage(chatId, "⛔️Пожалуйста напишите дату в формате дд.мм ⛔️");
+            return false;
+        }
     }
-    anonsInfo[`${chatId}`].day[i] = day_arr[day];
  }
 
  const checkMember = (userId, action) => {
@@ -344,10 +353,11 @@ bot.on('message', async msg => {
         const msgId = msg.message_id;
         const text = msg.text;
         console.log(msg);
+        bot.sendMessage(chatId, msg.caption);
 
         if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
         if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
-        if(text === '📝 #Создать_анонс'/* || text === "/get_action"*/){
+        if(text === '📝 #Создать_анонс' || text === "/get_action"/**/){
             anonsInfo[`${chatId}`] = anonsInfoInit();
             actionMenu[`${chatId}`] = actionMenuInit();
             checkMember(userId, async () => await bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'}));
@@ -371,32 +381,42 @@ bot.on('message', async msg => {
             returnToMenu(chatId);       
         }
         if(access_flag.date[`${chatId}`]){
-            bot.deleteMessage(chatId, msgId-1);
-            actionMenu[`${chatId}`].date = ' ✅';
+            let res = false;
             anonsInfo[`${chatId}`].date = [];
             anonsInfo[`${chatId}`].date_sep = "";
             if(/( по | до |-)/.test(text)){
                 let durDate = text.split(/( по | до |-)/);
-                getDate(durDate[0], chatId, 0);
-                getDate(durDate[2], chatId, 1);
+                let res1 = getDate(durDate[0], chatId, 0);
+                let res2 = getDate(durDate[2], chatId, 1);
                 anonsInfo[`${chatId}`].date_sep = '-';
+                if(res1 && res2){res = true;}
             }
             else if(/( и |&|,)/.test(text)){
                 let durDate = text.split(/( и |&|,)/);
-                getDate(durDate[0], chatId, 0);
-                getDate(durDate[2], chatId, 1);
+                let res1 = getDate(durDate[0], chatId, 0);
+                let res2 = getDate(durDate[2], chatId, 1);
                 anonsInfo[`${chatId}`].date_sep = 'и';
+                if(res1 && res2){res = true;}
             }
             else{
-                getDate(text, chatId, 0);
+                    res = getDate(text, chatId, 0);
             }
-            returnToMenu(chatId);
+            if(res){
+                bot.deleteMessage(chatId, access_flag.date[`${chatId}`]);
+                actionMenu[`${chatId}`].date = ' ✅';
+                returnToMenu(chatId);
+            }
         }
         if(access_flag.time[`${chatId}`]){
             bot.deleteMessage(chatId, msgId-1);
-            actionMenu[`${chatId}`].time = ' ✅';
-            anonsInfo[`${chatId}`].time = text;
-            returnToMenu(chatId);
+            if(/\d\d:\d\d/.test(text)){
+                actionMenu[`${chatId}`].time = ' ✅';
+                anonsInfo[`${chatId}`].time = text;
+                returnToMenu(chatId);
+            }
+            else{
+                bot.sendMessage(chatId, `⛔️ Пожалуйста укажите время в  формате чч:мм ⛔️`);
+            }
         }
         if(access_flag.location[`${chatId}`]){
             bot.deleteMessage(chatId, msgId-1);
@@ -528,7 +548,7 @@ const getLocCoordinates = async (adr) => {
     else return false;
 }
 
-let dataId;
+//let dataId;
      
 bot.on('callback_query', async msg => {
     const chatId = msg.message.chat.id;
@@ -573,8 +593,8 @@ bot.on('callback_query', async msg => {
             case 'dateOfAction': 
                 bot.deleteMessage(chatId, msgId);
                 bot.sendMessage(chatId, 'Укажите дату проведения мероприятия', nextButton('Вернуться ⬅️'));
-                dataId = msgId;
-                access_flag.date[`${chatId}`] = true;
+                //dataId = msgId;
+                access_flag.date[`${chatId}`] = msgId+1;
                 break;
             case 'timeOfAction': 
                 bot.deleteMessage(chatId, msgId);
@@ -645,7 +665,7 @@ bot.on('callback_query', async msg => {
                 });
                 break;
             default:
-                console.log(false1);
+                console.log("false1");
                 break;
         }
     }
