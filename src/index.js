@@ -461,7 +461,12 @@ bot.on('message', async msg => {
         if(access_flag.details[`${chatId}`]){
             bot.deleteMessage(chatId, msgId-1);
             actionMenu[`${chatId}`].details = ' ✅';
-            anonsInfo[`${chatId}`].details = text;
+            if(msg.entities[0].type === 'text_link'){
+                anonsInfo[`${chatId}`].details = `${text.substr(0, msg.entities[0].offset)}<a href="${msg.entities[0].url}">${text.substr(msg.entities[0].offset, msg.entities[0].length)}</a>${text.substr(msg.entities[0].offset+msg.entities[0].length, text.length-msg.entities[0].offset+msg.entities[0].length)}`;
+            }
+            else{
+                anonsInfo[`${chatId}`].details = text;
+            }
             returnToMenu(chatId);
         } 
     }
