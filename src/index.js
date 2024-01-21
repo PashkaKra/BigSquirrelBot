@@ -461,8 +461,30 @@ bot.on('message', async msg => {
         if(access_flag.details[`${chatId}`]){
             bot.deleteMessage(chatId, msgId-1);
             actionMenu[`${chatId}`].details = ' ✅';
-            if(msg.entities[0].type === 'text_link'){
-                anonsInfo[`${chatId}`].details = `${text.substr(0, msg.entities[0].offset)}<a href="${msg.entities[0].url}">${text.substr(msg.entities[0].offset, msg.entities[0].length)}</a>${text.substr(msg.entities[0].offset+msg.entities[0].length, text.length-msg.entities[0].offset+msg.entities[0].length)}`;
+            if(msg.entities.length > 0){
+                let text1 = text;
+                for(let i=0; i<msg.entities.length; i++){
+                    const PHRASE = text.substr(msg.entities[i].offset, msg.entities[i].length);
+                    if(msg.entities[i].type === 'text_link'){
+                        text1 = text1.replace(PHRASE, `<a href="${msg.entities[i].url}">${PHRASE}</a>`);
+                    }
+                    else if(msg.entities[i].type === 'bold'){
+                        text1 = text1.replace(PHRASE, `<strong>${PHRASE}</strong>`);
+                    }
+                    else if(msg.entities[i].type === 'italic'){
+                        text1 = text1.replace(PHRASE, `<i>${PHRASE}</i>`);
+                    }
+                    else if(msg.entities[i].type === 'underline'){
+                        text1 = text1.replace(PHRASE, `<u>${PHRASE}</u>`);
+                    }
+                    else if(msg.entities[i].type === 'strikethrough'){
+                        text1 = text1.replace(PHRASE, `<s>${PHRASE}</s>`);
+                    }
+                    else if(msg.entities[i].type === 'spoiler'){
+                        text1 = text1.replace(PHRASE, `<span class="tg-spoiler">${PHRASE}</span>`);
+                    }
+                }
+                anonsInfo[`${chatId}`].details = text1;
             }
             else{
                 anonsInfo[`${chatId}`].details = text;
