@@ -31,9 +31,9 @@ app.get('/', function (req, res) {
 app.listen(PORT, () => console.log(`server started in potr: ${PORT}`));
 
 */
-bot.setMyCommands([
-    {command: '/get_action', description: 'Предложить анонс'}
-]);
+//bot.setMyCommands([
+//    {command: '/get_action', description: 'Предложить анонс'}
+//]);
 
 const getAction = async (title) => {
     //const tableAddr = '/home/PashkaKra/Документы/WebProj/BigSquirrelBot/actionsTable.xlsx';
@@ -381,7 +381,7 @@ bot.on('message', async msg => {
 
         if(typeof actionMenu[`${chatId}`] !== 'object'){actionMenu[`${chatId}`] = actionMenuInit();}
         if(typeof anonsInfo[`${chatId}`] !== 'object'){anonsInfo[`${chatId}`] = anonsInfoInit();}
-        if(text === '📝 #Создать_анонс' || text === "/get_action"/**/){
+        if(text === '📝 #Создать_анонс' /*|| text === "/get_action"/**/){
             anonsInfo[`${chatId}`] = anonsInfoInit();
             actionMenu[`${chatId}`] = actionMenuInit();
             checkMember(userId, async () => await bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'}));
