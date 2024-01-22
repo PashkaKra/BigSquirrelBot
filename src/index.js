@@ -346,6 +346,30 @@ const returnToMenu = (chatId) => {
     bot.sendMessage(chatId, startText, {reply_markup: getActionMenu(chatId), parse_mode: 'HTML'});
 }
 
+/*const getFormat = (text1) => {
+    for(let i=0; i<msg.entities.length; i++){
+        const PHRASE = text.substr(msg.entities[i].offset, msg.entities[i].length);
+        if(msg.entities[i].type === 'text_link'){
+            text1 = text1.replace(PHRASE, `<a href="${msg.entities[i].url}">${PHRASE}</a>`);
+        }
+        else if(msg.entities[i].type === 'bold'){
+            text1 = text1.replace(PHRASE, `<strong>${PHRASE}</strong>`);
+        }
+        else if(msg.entities[i].type === 'italic'){
+            text1 = text1.replace(PHRASE, `<i>${PHRASE}</i>`);
+        }
+        else if(msg.entities[i].type === 'underline'){
+            text1 = text1.replace(PHRASE, `<u>${PHRASE}</u>`);
+        }
+        else if(msg.entities[i].type === 'strikethrough'){
+            text1 = text1.replace(PHRASE, `<s>${PHRASE}</s>`);
+        }
+        else if(msg.entities[i].type === 'spoiler'){
+            text1 = text1.replace(PHRASE, `<span class="tg-spoiler">${PHRASE}</span>`);
+        }
+    }
+}*/
+
 bot.on('message', async msg => {
     const chatId = msg.chat.id;
     const userId = msg.from.id;
@@ -447,7 +471,40 @@ bot.on('message', async msg => {
         if(access_flag.price[`${chatId}`]){
             bot.deleteMessage(chatId, msgId-1);
             actionMenu[`${chatId}`].price = ' ✅';
-            text !== '0' ? anonsInfo[`${chatId}`].price = text : anonsInfo[`${chatId}`].price = "Бесплатно";
+            //text !== '0' ? anonsInfo[`${chatId}`].price = text : anonsInfo[`${chatId}`].price = "Бесплатно";
+            if(text !== '0'){
+                if(msg.entities && msg.entities.length > 0){
+                    let text1 = text;
+                    for(let i=0; i<msg.entities.length; i++){
+                        const PHRASE = text.substr(msg.entities[i].offset, msg.entities[i].length);
+                        if(msg.entities[i].type === 'text_link'){
+                            text1 = text1.replace(PHRASE, `<a href="${msg.entities[i].url}">${PHRASE}</a>`);
+                        }
+                        else if(msg.entities[i].type === 'bold'){
+                            text1 = text1.replace(PHRASE, `<strong>${PHRASE}</strong>`);
+                        }
+                        else if(msg.entities[i].type === 'italic'){
+                            text1 = text1.replace(PHRASE, `<i>${PHRASE}</i>`);
+                        }
+                        else if(msg.entities[i].type === 'underline'){
+                            text1 = text1.replace(PHRASE, `<u>${PHRASE}</u>`);
+                        }
+                        else if(msg.entities[i].type === 'strikethrough'){
+                            text1 = text1.replace(PHRASE, `<s>${PHRASE}</s>`);
+                        }
+                        else if(msg.entities[i].type === 'spoiler'){
+                            text1 = text1.replace(PHRASE, `<span class="tg-spoiler">${PHRASE}</span>`);
+                        }
+                    }
+                    anonsInfo[`${chatId}`].price = text1;
+                }
+                else{
+                    anonsInfo[`${chatId}`].price = text;
+                }
+            }
+            else{
+                anonsInfo[`${chatId}`].price = "Бесплатно";
+            }
             returnToMenu(chatId);
         }
 
@@ -461,7 +518,7 @@ bot.on('message', async msg => {
         if(access_flag.details[`${chatId}`]){
             bot.deleteMessage(chatId, msgId-1);
             actionMenu[`${chatId}`].details = ' ✅';
-            if(msg.entities.length > 0){
+            if(msg.entities && msg.entities.length > 0){
                 let text1 = text;
                 for(let i=0; i<msg.entities.length; i++){
                     const PHRASE = text.substr(msg.entities[i].offset, msg.entities[i].length);
